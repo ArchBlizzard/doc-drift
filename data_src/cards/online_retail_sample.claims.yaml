@@ -1,0 +1,36 @@
+claims:
+  - id: r_rows
+    type: row_count
+    quoted_span: "The extract contains 40,000 line items."
+    params: { expected: 40000 }
+    base_verdict: holds
+  - id: r_dates
+    type: temporal_coverage
+    quoted_span: "All invoices fall between 1 and 21 December 2010."
+    params: { column: invoicedate, min_date: "2010-12-01", max_date: "2010-12-21" }
+    base_verdict: holds
+  - id: r_qty
+    type: range
+    quoted_span: "Quantities run from -9,360 up to 2,880"
+    params: { column: quantity, min: -9360, max: 2880 }
+    base_verdict: holds
+  - id: r_countries
+    type: category_set
+    quoted_span: "Buyers come from 24 countries."
+    params: { column: country, count: 24 }
+    base_verdict: holds
+  - id: r_cust_nulls
+    type: null_rate
+    quoted_span: "Customer IDs are absent on roughly 35% of rows"
+    params: { column: customer_id, mode: pct, value: 35, tol_pp: 2 }
+    base_verdict: holds
+  - id: r_desc_nulls
+    type: null_rate
+    quoted_span: "123 line items lack a product description"
+    params: { column: description, mode: count, value: 123 }
+    base_verdict: holds
+  - id: r_prov
+    type: prose_unverifiable
+    quoted_span: "maintained by the back-office team of a UK-based online giftware retailer"
+    params: {}
+    base_verdict: unverifiable

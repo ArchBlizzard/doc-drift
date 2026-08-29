@@ -1,0 +1,41 @@
+claims:
+  - id: p_rows
+    type: row_count
+    quoted_span: "The table holds 344 penguin observations."
+    params: { expected: 344 }
+    base_verdict: holds
+  - id: p_species
+    type: category_set
+    quoted_span: "Three species appear: Adelie, Chinstrap and Gentoo."
+    params: { column: species, values: [Adelie, Chinstrap, Gentoo] }
+    base_verdict: holds
+  - id: p_islands
+    type: category_set
+    quoted_span: "Sampling covered three islands named Biscoe, Dream and Torgersen."
+    params: { column: island, values: [Biscoe, Dream, Torgersen] }
+    base_verdict: holds
+  - id: p_year
+    type: temporal_coverage
+    quoted_span: "Field seasons ran from 2007 through 2009."
+    params: { column: year, min_year: 2007, max_year: 2009 }
+    base_verdict: holds
+  - id: p_mass
+    type: range
+    quoted_span: "Body mass ranges from 2,700 to 6,300 grams."
+    params: { column: body_mass_g, min: 2700, max: 6300 }
+    base_verdict: holds
+  - id: p_bill
+    type: aggregate_stat
+    quoted_span: "Average bill length is 43.9 mm."
+    params: { column: bill_length_mm, stat: mean, value: 43.9, decimals: 1 }
+    base_verdict: holds
+  - id: p_sex_nulls
+    type: null_rate
+    quoted_span: "the `sex` column is missing for 11 birds"
+    params: { column: sex, mode: count, value: 11 }
+    base_verdict: holds
+  - id: p_prov
+    type: prose_unverifiable
+    quoted_span: "collected at Palmer Station, Antarctica, by Dr. Kristen Gorman and the Palmer LTER program"
+    params: {}
+    base_verdict: unverifiable

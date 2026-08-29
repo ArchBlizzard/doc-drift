@@ -1,0 +1,46 @@
+claims:
+  - id: a_rows
+    type: row_count
+    quoted_span: "The file contains exactly 32,561 records"
+    params: { expected: 32561 }
+    base_verdict: holds
+  - id: a_age
+    type: range
+    quoted_span: "Reported ages range from 17 to 90."
+    params: { column: age, min: 17, max: 90 }
+    base_verdict: holds
+  - id: a_sex
+    type: category_set
+    quoted_span: "The `sex` column takes exactly two values: `Male` and `Female`."
+    params: { column: sex, values: [Male, Female] }
+    base_verdict: holds
+  - id: a_race
+    type: category_set
+    quoted_span: "The `race` column records one of five categories."
+    params: { column: race, count: 5 }
+    base_verdict: holds
+  - id: a_income
+    type: category_set
+    quoted_span: "The `income` label is binary: `<=50K` or `>50K`."
+    params: { column: income, values: ["<=50K", ">50K"] }
+    base_verdict: holds
+  - id: a_hours
+    type: range
+    quoted_span: "Weekly working hours span 1 to 99."
+    params: { column: hours_per_week, min: 1, max: 99 }
+    base_verdict: holds
+  - id: a_nulls
+    type: null_rate
+    quoted_span: "No cell in the file is empty; unknown values are encoded as the literal string `?` instead."
+    params: { mode: zero_all }
+    base_verdict: holds
+  - id: a_mean_age
+    type: aggregate_stat
+    quoted_span: "The average age is 38.6 years."
+    params: { column: age, stat: mean, value: 38.6, decimals: 1 }
+    base_verdict: holds
+  - id: a_prov
+    type: prose_unverifiable
+    quoted_span: "extracted from the 1994 US Census bureau database by Barry Becker"
+    params: {}
+    base_verdict: unverifiable

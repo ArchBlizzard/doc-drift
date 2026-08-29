@@ -1,0 +1,36 @@
+claims:
+  - id: n_rows
+    type: row_count
+    quoted_span: "The extract contains 2,064 daily summaries."
+    params: { expected: 2064 }
+    base_verdict: holds
+  - id: n_stations
+    type: category_set
+    quoted_span: "Ten distinct stations report in this file"
+    params: { column: STATION, count: 10 }
+    base_verdict: holds
+  - id: n_dates
+    type: temporal_coverage
+    quoted_span: "Observations cover 1 January through 31 December 2023"
+    params: { column: DATE, min_date: "2023-01-01", max_date: "2023-12-31" }
+    base_verdict: holds
+  - id: n_temp
+    type: range
+    quoted_span: "Daily mean temperatures span -10.0 to 77.8 degrees Fahrenheit."
+    params: { column: TEMP, min: -10.0, max: 77.8 }
+    base_verdict: holds
+  - id: n_prcp
+    type: range
+    quoted_span: "Precipitation values range from 0.0 to 99.99 inches."
+    params: { column: PRCP, min: 0.0, max: 99.99 }
+    base_verdict: holds
+  - id: n_sentinel
+    type: null_rate
+    quoted_span: "Missing wind speeds are encoded as 999.9 rather than left blank"
+    params: { column: WDSP, mode: sentinel, sentinel: 999.9 }
+    base_verdict: holds
+  - id: n_prov
+    type: prose_unverifiable
+    quoted_span: "derived from ISD hourly observations by NCEI"
+    params: {}
+    base_verdict: unverifiable

@@ -1,0 +1,41 @@
+claims:
+  - id: t_rows
+    type: row_count
+    quoted_span: "This sample holds 50,000 trips"
+    params: { expected: 50000 }
+    base_verdict: holds
+  - id: t_pass
+    type: range
+    quoted_span: "Passenger counts range from 0 to 6."
+    params: { column: passenger_count, min: 0, max: 6 }
+    base_verdict: holds
+  - id: t_pay
+    type: range
+    quoted_span: "Payment types are coded 1 through 4."
+    params: { column: payment_type, min: 1, max: 4 }
+    base_verdict: holds
+  - id: t_flag
+    type: category_set
+    quoted_span: "The `store_and_fwd_flag` column is either `N` or `Y`."
+    params: { column: store_and_fwd_flag, values: [N, Y] }
+    base_verdict: holds
+  - id: t_fare
+    type: aggregate_stat
+    quoted_span: "The average total fare is $29.17."
+    params: { column: total_amount, stat: mean, value: 29.17, decimals: 2 }
+    base_verdict: holds
+  - id: t_dates
+    type: temporal_coverage
+    quoted_span: "Pickup timestamps run from 24 October 2022 to 1 January 2023"
+    params: { column: tpep_pickup_datetime, min_date: "2022-10-24", max_date: "2023-01-01" }
+    base_verdict: holds
+  - id: t_min_total
+    type: aggregate_stat
+    quoted_span: "Refunded trips push the minimum total to -$351.00."
+    params: { column: total_amount, stat: min, value: -351.0, decimals: 2 }
+    base_verdict: holds
+  - id: t_prov
+    type: prose_unverifiable
+    quoted_span: "published by the NYC Taxi and Limousine Commission under its trip-record program"
+    params: {}
+    base_verdict: unverifiable

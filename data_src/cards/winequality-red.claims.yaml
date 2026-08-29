@@ -1,0 +1,36 @@
+claims:
+  - id: w_rows
+    type: row_count
+    quoted_span: "The dataset covers 1,599 red wine samples."
+    params: { expected: 1599 }
+    base_verdict: holds
+  - id: w_quality
+    type: range
+    quoted_span: "Quality scores range from 3 to 8."
+    params: { column: quality, min: 3, max: 8 }
+    base_verdict: holds
+  - id: w_ph
+    type: range
+    quoted_span: "pH values fall between 2.74 and 4.01."
+    params: { column: pH, min: 2.74, max: 4.01 }
+    base_verdict: holds
+  - id: w_alcohol
+    type: range
+    quoted_span: "Alcohol content spans 8.4 to 14.9 percent."
+    params: { column: alcohol, min: 8.4, max: 14.9 }
+    base_verdict: holds
+  - id: w_nonulls
+    type: null_rate
+    quoted_span: "There are no missing values anywhere in the table."
+    params: { mode: zero_all }
+    base_verdict: holds
+  - id: w_mean
+    type: aggregate_stat
+    quoted_span: "The mean quality score is 5.6."
+    params: { column: quality, stat: mean, value: 5.6, decimals: 1 }
+    base_verdict: holds
+  - id: w_prov
+    type: prose_unverifiable
+    quoted_span: "assembled for quality-prediction research by Cortez and colleagues"
+    params: {}
+    base_verdict: unverifiable
