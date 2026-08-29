@@ -35,13 +35,21 @@ VACUOUS_CHECK = ('def check(df):\n    return {"passed": True, "computed": "fine"
                  '"evidence_rows": []}\n')
 
 
+REPORT_REPLY = {"executive_summary": "One documented claim is violated: the qty column "
+                                     "contains a null the card denies. Fix the card or the data.",
+                "most_severe_claim_id": "case_77-c02"}
+
+
 def make_transport(crash_null=False):
-    calls = {"extract": 0, "synth": 0}
+    calls = {"extract": 0, "synth": 0, "report": 0}
 
     async def transport(system_prompt, user_prompt, model):
         if "You extract" in system_prompt:
             calls["extract"] += 1
             return RawReply(json.dumps(EXTRACT_REPLY), "claude-test-1", 100, 50)
+        if "executive summary" in system_prompt:
+            calls["report"] += 1
+            return RawReply(json.dumps(REPORT_REPLY), "claude-test-1", 60, 30)
         calls["synth"] += 1
         if "holds 3 rows" in user_prompt:
             src = ROW_CHECK
@@ -89,8 +97,11 @@ def test_end_to_end_verdicts(case_root, tmp_path):
     # spans are exact
     for c in parsed.claims:
         assert CARD[c.span_start:c.span_end] == c.quoted_span
-    assert transport.calls == {"extract": 1, "synth": 2}
-    assert (out.parent / "audit.md").read_text().count("|") > 10
+    assert transport.calls == {"extract": 1, "synth": 2, "report": 1}
+    audit = (out.parent / "audit.md").read_text(encoding="utf-8")
+    from docdrift.agents.reporter import audit_checklist
+    assert audit_checklist(audit, list(by_claim(tmp_path / "runs").values())) == []
+    assert REPORT_REPLY["executive_summary"] in audit
 
 
 def test_trusted_verdicts_have_executed_checks_and_prose_has_none(case_root, tmp_path):
@@ -120,7 +131,7 @@ def test_resume_makes_zero_model_calls(case_root, tmp_path):
     run(case_root, tmp_path / "runs", first)
     second = make_transport()
     out = run(case_root, tmp_path / "runs", second)
-    assert second.calls == {"extract": 0, "synth": 0}
+    assert second.calls == {"extract": 0, "synth": 0, "report": 0}
     parsed = SystemOutput.model_validate_json(out.read_text())
     assert len(parsed.claims) == 3  # verdicts fully reconstructed from the ledger
 
@@ -129,7 +140,7 @@ def test_fresh_reruns_everything(case_root, tmp_path):
     run(case_root, tmp_path / "runs", make_transport())
     again = make_transport()
     run(case_root, tmp_path / "runs", again, fresh=True)
-    assert again.calls == {"extract": 1, "synth": 2}
+    assert again.calls == {"extract": 1, "synth": 2, "report": 1}
 
 
 def test_exit_3_on_missing_case():
@@ -145,6 +156,8 @@ def test_gate_rejects_vacuous_then_accepts_rewrite(case_root, tmp_path):
         if "You extract" in system_prompt:
             reply = {"claims": [EXTRACT_REPLY["claims"][1]]}  # just the null claim
             return RawReply(json.dumps(reply), "claude-test-1", 100, 50)
+        if "executive summary" in system_prompt:
+            return RawReply(json.dumps(REPORT_REPLY), "claude-test-1", 60, 30)
         synth_calls.append(user_prompt)
         src = VACUOUS_CHECK if len(synth_calls) == 1 else NULL_CHECK
         return RawReply(json.dumps({"source_code": src}), "claude-test-1", 40, 20)
@@ -167,6 +180,8 @@ def test_gate_two_strikes_abstains(case_root, tmp_path):
         if "You extract" in system_prompt:
             reply = {"claims": [EXTRACT_REPLY["claims"][1]]}
             return RawReply(json.dumps(reply), "claude-test-1", 100, 50)
+        if "executive summary" in system_prompt:
+            return RawReply(json.dumps(REPORT_REPLY), "claude-test-1", 60, 30)
         return RawReply(json.dumps({"source_code": VACUOUS_CHECK}), "claude-test-1", 40, 20)
 
     out = anyio.run(lambda: orchestrator.run_case(

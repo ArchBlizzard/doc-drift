@@ -1,4 +1,4 @@
-"""v2 agent pipeline (T019 + T022): extract -> per-claim (synthesize ->
+﻿"""v2 agent pipeline (T019 + T022): extract -> per-claim (synthesize ->
 MUTATION GATE -> execute) -> verdicts -> template audit.
 
 Deterministic Python drives control flow; the model appears only at judgment
@@ -26,6 +26,7 @@ import anyio
 import pandas as pd
 
 from docdrift import __version__
+from docdrift.agents import reporter
 from docdrift.agents.extractor import extract_claims
 from docdrift.agents.synthesizer import synthesize_check
 from docdrift.config import CASES_DIR, CLAIM_SEMAPHORE, MODEL_AGENT, RUNS_DIR
@@ -220,30 +221,6 @@ async def _get_claims(
     return claims, warnings
 
 
-def _write_audit(out_dir: Path, case_id: str, model_id: str,
-                 entries: list[LedgerEntry]) -> None:
-    """v1 template audit — replaced by the reporter agent in T031 (FR-007)."""
-    lines = [f"# Data card audit — {case_id}", "",
-             f"Run: {_now_iso()} · model: {model_id} · claims: {len(entries)}", "",
-             "| # | claim | type | verdict | computed |", "|---|---|---|---|---|"]
-    for i, e in enumerate(entries, 1):
-        v = e.verdict_record
-        verdict = v.verdict.value + (f" ({v.reason.value})" if v.reason else "")
-        quoted = e.claim.quoted_span.replace("|", "\\|")
-        lines.append(f"| {i} | {quoted} | {e.claim.type.value} | {verdict} | {v.computed or ''} |")
-    violated = [e for e in entries if e.verdict_record.verdict is Verdict.violated
-                and e.execution and e.execution.evidence_rows]
-    if violated:
-        lines += ["", "## Evidence for violations (≤5 rows each)", ""]
-        for e in violated:
-            lines.append(f"**{e.claim.quoted_span}**")
-            lines.append("```json")
-            lines.append(json.dumps(e.execution.evidence_rows, indent=2))
-            lines.append("```")
-            lines.append("")
-    (out_dir / "audit.md").write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
-
-
 async def run_case(
     case_id: str,
     *,
@@ -346,7 +323,13 @@ async def run_case(
     )
     (out_dir / "verdicts.json").write_text(
         output.model_dump_json(indent=2, exclude_none=True) + "\n", encoding="utf-8")
-    _write_audit(out_dir, case_id, model_id, ordered)
+    audit_path = out_dir / "audit.md"
+    fully_resumed = (stats.synth_calls == 0 and stats.tokens_in == 0
+                     and stats.settled_reused == len(claims) and audit_path.exists())
+    if not fully_resumed:  # a zero-new-work resume keeps its audit and makes no model call
+        await reporter.write_audit(audit_path, case_id, model_id, ordered,
+                                   _now_iso(), model=model, log_path=log_path,
+                                   transport=transport)
     vac_rate = (100.0 * (stats.first_attempt_vacuous + stats.first_attempt_error)
                 / stats.gated) if stats.gated else 0.0
     _say(quiet, f"  -> {stats.extracted} claims, {stats.synth_calls} checks synthesized, "
