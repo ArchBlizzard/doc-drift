@@ -10,31 +10,31 @@ Deadline anchors (from root PLAN.md §8): Phase 0–2 ≈ H0–H7 · Phase 3–4
 ## Phase 0 — Setup & Spikes
 
 - [x] **T001** Init repo + spec-kit docs (constitution, spec, research, data-model, contracts, plan, quickstart, tasks). *Done 2026-08-29.*
-- [ ] **T002** Scaffold project: `pyproject.toml` (deps per plan.md Technical Context, pinned; `dev` extra with pytest) + uv lockfile, `src/docdrift/__init__.py`, `src/docdrift/config.py` (model aliases, paths, retry cap=2, tolerance bands, semaphore=4), `.env.example`, `Makefile` + `tasks.ps1`, `tests/conftest.py`.
+- [x] **T002** Scaffold project: `pyproject.toml` (deps per plan.md Technical Context, pinned; `dev` extra with pytest) + uv lockfile, `src/docdrift/__init__.py`, `src/docdrift/config.py` (model aliases, paths, retry cap=2, tolerance bands, semaphore=4), `.env.example`, `Makefile` + `tasks.ps1`, `tests/conftest.py`.
   *Accept:* `uv sync` succeeds; `uv run python -c "import docdrift"` green.
   *Commit:* `chore: scaffold python project`
-- [ ] **T003 [P]** `src/docdrift/schemas.py`: all entities per data-model.md incl. validation rules (span invariant, computed⟺verdict rule, gate_skipped-only-in-v1 note) + `tests/test_schemas.py`.
+- [x] **T003 [P]** `src/docdrift/schemas.py`: all entities per data-model.md incl. validation rules (span invariant, computed⟺verdict rule, gate_skipped-only-in-v1 note) + `tests/test_schemas.py`.
   *Accept:* pytest green; invalid combinations (e.g. `holds` without `computed`) rejected.
   *Commit:* `feat: core pydantic schemas with validation rules`
-- [ ] **T004 [P]** Spike S1 — `scripts/spike_auth.py`: one no-tools `claude-agent-sdk` call with no API key set; print resolved model ID + latency; append outcome to research.md S1.
+- [x] **T004 [P]** Spike S1 — `scripts/spike_auth.py`: one no-tools `claude-agent-sdk` call with no API key set; print resolved model ID + latency; append outcome to research.md S1.
   *Accept:* response received on subscription auth (else: activate `claude -p` fallback per R2 and record the decision).
   *Commit:* `docs: record auth spike S1 outcome`
-- [ ] **T005** Datasets: download the 6 sources into `data_src/` (one-time, builder-only network step), write `data_src/SHA256SUMS` + `data_src/README.md` with per-file license/provenance. Any unreachable source is substituted with a comparable licensed dataset and the substitution recorded in research.md R4.
+- [x] **T005** Datasets: download the 6 sources into `data_src/` (one-time, builder-only network step), write `data_src/SHA256SUMS` + `data_src/README.md` with per-file license/provenance. Any unreachable source is substituted with a comparable licensed dataset and the substitution recorded in research.md R4.
   *Accept:* checksums verify; total committed size < 30MB.
   *Commit:* `data: add source datasets with licenses and checksums`
 
 ## Phase 1 — Eval Foundation (cases before agent)
 
-- [ ] **T006** `eval/corruptions.py`: the 8 operators (inject nulls · add/rename category · shift range · row-count drift · stale temporal coverage · perturb aggregate-stat · phantom column in card · fuzzy-% coarsening), each editing card OR data and emitting `GoldClaim` with span, per gold.schema.json + `tests/test_corruptions.py` (round-trip: applying an op then diffing reproduces its gold label/span).
+- [x] **T006** `eval/corruptions.py`: the 8 operators (inject nulls · add/rename category · shift range · row-count drift · stale temporal coverage · perturb aggregate-stat · phantom column in card · fuzzy-% coarsening), each editing card OR data and emitting `GoldClaim` with span, per gold.schema.json + `tests/test_corruptions.py` (round-trip: applying an op then diffing reproduces its gold label/span).
   *Accept:* pytest green for `tests/test_corruptions.py`, all 8 operators covered.
   *Commit:* `feat: corruption operators with gold-by-construction`
-- [ ] **T007 [P]** Author 6 accurate data cards `data_src/cards/*.md` (natural prose: overview, schema table, coverage, caveats; each containing ≥2 true-checkable and ≥1 unverifiable-prose claim) + `tests/test_card_truth.py` verifying every checkable claim against `data_src/` (committed — gold integrity is auditable, Constitution I).
+- [x] **T007 [P]** Author 6 accurate data cards `data_src/cards/*.md` (natural prose: overview, schema table, coverage, caveats; each containing ≥2 true-checkable and ≥1 unverifiable-prose claim) + `tests/test_card_truth.py` verifying every checkable claim against `data_src/` (committed — gold integrity is auditable, Constitution I).
   *Accept:* `tests/test_card_truth.py` green.
   *Commit:* `data: author accurate data cards with committed truth tests`
-- [ ] **T008** `eval/make_cases.py` + `eval/specs/case_01..06.yaml`: build cases + gold; verify SHA256SUMS first (exit 4 on mismatch).
+- [x] **T008** `eval/make_cases.py` + `eval/specs/case_01..06.yaml`: build cases + gold; verify SHA256SUMS first (exit 4 on mismatch).
   *Accept:* two consecutive runs → byte-identical cards + gold; gold validates against gold.schema.json.
   *Commit:* `feat: deterministic case generation for cases 01-06`
-- [ ] **T009** `eval/score.py`: span-IoU≥0.5 alignment, flagged rapidfuzz≥85 fallback, macro-F1 + per-class P/R, `results.md` + `per_claim.csv` writers + `tests/test_score.py` with hand-labeled fixtures incl. one tricky paraphrase and one unmatched-gold miss; exit 4 on missing/invalid gold (tested).
+- [x] **T009** `eval/score.py`: span-IoU≥0.5 alignment, flagged rapidfuzz≥85 fallback, macro-F1 + per-class P/R, `results.md` + `per_claim.csv` writers + `tests/test_score.py` with hand-labeled fixtures incl. one tricky paraphrase and one unmatched-gold miss; exit 4 on missing/invalid gold (tested).
   *Accept:* pytest green; scorer is pure (no model imports). **GATE G1: scorer green before any model-call code.**
   *Commit:* `feat: deterministic span-anchored scorer`
 
