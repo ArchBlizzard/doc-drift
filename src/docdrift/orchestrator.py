@@ -26,7 +26,7 @@ from docdrift.agents.extractor import extract_claims
 from docdrift.agents.synthesizer import synthesize_check
 from docdrift.config import CASES_DIR, CLAIM_SEMAPHORE, MODEL_AGENT, RUNS_DIR
 from docdrift.ledger import Ledger, claim_key, fingerprint_bytes, fingerprint_text
-from docdrift.llm import Transport
+from docdrift.llm import AuthError, Transport
 from docdrift.schemas import (
     Check,
     CheckStatus,
@@ -222,9 +222,23 @@ async def run_case(
             _say(quiet, f"  = {claim.id} {claim.type.value}: settled (resume)")
             return
         async with sem:
-            entry = await _settle_claim(claim, profile_text=profile_text,
-                                        data_path=data_path, model=model,
-                                        log_path=log_path, transport=transport, stats=stats)
+            try:
+                entry = await _settle_claim(claim, profile_text=profile_text,
+                                            data_path=data_path, model=model,
+                                            log_path=log_path, transport=transport, stats=stats)
+            except AuthError:
+                raise
+            except Exception as exc:
+                # a single claim's hard failure (e.g. synthesis never validated)
+                # must not kill the case: no trusted check could be produced
+                _say(quiet, f"  ! {claim.id}: {type(exc).__name__}: {exc}")
+                entry = LedgerEntry(
+                    claim=claim, check=None, execution=None,
+                    verdict_record=VerdictRecord(claim_id=claim.id,
+                                                 verdict=Verdict.unverifiable,
+                                                 reason="check_failed"),
+                    model_id="error", tokens_in=0, tokens_out=0, wall_ms=0,
+                )
         async with append_lock:
             ledger.append(entry)
         entries[claim.id] = entry

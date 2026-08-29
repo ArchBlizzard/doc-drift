@@ -97,3 +97,19 @@ def test_auth_error_propagates():
     transport = make_transport([AuthError("no credential found")])
     with pytest.raises(AuthError):
         run(call_json(Reply, "sys", "user", transport=transport))
+
+
+def test_transient_transport_failure_burns_an_attempt_then_succeeds(tmp_path):
+    transport = make_transport([RuntimeError("CLI died"), '{"answer": 5}'])
+    log = tmp_path / "messages.jsonl"
+    parsed, meta = run(call_json(Reply, "sys", "user", transport=transport, log_path=log))
+    assert parsed.answer == 5 and meta.attempts == 2
+    records = [json.loads(line) for line in log.read_text().splitlines()]
+    assert "transport failure" in records[0]["transport_error"]
+
+
+def test_persistent_transport_failure_exhausts_cap():
+    transport = make_transport([RuntimeError("CLI died")])
+    with pytest.raises(LlmParseError, match="transport failure"):
+        run(call_json(Reply, "sys", "user", transport=transport))
+    assert len(transport.calls) == LLM_RETRY_CAP + 1

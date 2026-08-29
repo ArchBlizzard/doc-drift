@@ -92,7 +92,7 @@ async def sdk_transport(system_prompt: str, user_prompt: str, model: str) -> Raw
     from claude_agent_sdk import ClaudeAgentOptions, query  # lazy: unit tests stay offline
 
     options = ClaudeAgentOptions(
-        model=model, max_turns=1, allowed_tools=[],
+        model=model, max_turns=3, allowed_tools=[],
         system_prompt=system_prompt, cwd=str(_neutral_cwd()),
     )
     text_parts: list[str] = []
@@ -115,7 +115,12 @@ async def sdk_transport(system_prompt: str, user_prompt: str, model: str) -> Raw
     except Exception as exc:  # classify auth-shaped failures for exit 2
         if any(marker in str(exc).lower() for marker in AUTH_ERROR_MARKERS):
             raise AuthError(str(exc)) from exc
-        raise
+        # the CLI sometimes ends a plain reply with a turn-cap "error result";
+        # if the text already arrived, that is a successful call
+        if "maximum number of turns" in str(exc).lower() and text_parts:
+            pass
+        else:
+            raise
     if not text_parts:
         raise LlmParseError("model returned no text blocks")
     return RawReply("".join(text_parts), model_id, tokens[0], tokens[1])
@@ -165,7 +170,15 @@ async def call_json(
     last_err = "no attempts made"
 
     for attempt in range(1, LLM_RETRY_CAP + 2):
-        raw = await send(system_prompt, prompt, model)
+        try:
+            raw = await send(system_prompt, prompt, model)
+        except AuthError:
+            raise
+        except Exception as exc:  # transient transport failure: burn an attempt, retry
+            last_err = f"transport failure: {type(exc).__name__}: {exc}"
+            _log(log_path, {"ts": time.time(), "label": label, "attempt": attempt,
+                            "model": model, "transport_error": last_err})
+            continue
         total_in += raw.input_tokens
         total_out += raw.output_tokens
         model_id = raw.model_id

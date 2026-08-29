@@ -127,3 +127,23 @@ def test_fresh_reruns_everything(case_root, tmp_path):
 
 def test_exit_3_on_missing_case():
     assert run_agent.main(["case_00"]) == 3
+
+
+def test_single_claim_hard_failure_degrades_not_kills(case_root, tmp_path):
+    """A claim whose synthesis always fails becomes unverifiable(check_failed);
+    the rest of the case still completes."""
+    async def transport(system_prompt, user_prompt, model):
+        if "You extract" in system_prompt:
+            return RawReply(json.dumps(EXTRACT_REPLY), "claude-test-1", 100, 50)
+        if "holds 3 rows" in user_prompt:
+            return RawReply(json.dumps({"source_code": ROW_CHECK}), "claude-test-1", 40, 20)
+        raise RuntimeError("CLI exploded")  # null-claim synthesis always dies
+
+    out = anyio.run(lambda: orchestrator.run_case(
+        "case_77", cases_root=case_root, out_root=tmp_path / "runs",
+        transport=transport, quiet=True))
+    parsed = SystemOutput.model_validate_json(out.read_text())
+    verdicts = {c.quoted_span: c for c in parsed.claims}
+    assert verdicts["The table holds 3 rows."].verdict is Verdict.holds
+    broken = verdicts["There are no missing values in the qty column."]
+    assert broken.verdict is Verdict.unverifiable and broken.reason.value == "check_failed"
