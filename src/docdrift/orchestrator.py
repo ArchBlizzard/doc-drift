@@ -1,14 +1,18 @@
-"""v1 agent pipeline (T019): extract -> per-claim (synthesize -> execute) ->
-verdicts -> template audit.
+"""v2 agent pipeline (T019 + T022): extract -> per-claim (synthesize ->
+MUTATION GATE -> execute) -> verdicts -> template audit.
 
 Deterministic Python drives control flow; the model appears only at judgment
-points (Constitution IV). v1 runs checks ungated — every Check is recorded
-`gate_skipped`; the mutation gate lands in Phase 4 (T022) and flips the
-invariant to gate_passed-only.
+points (Constitution IV). From v2 on, no check is trusted until it passes its
+clean fixture AND fails its mutant (FR-005): a gate rejection triggers one
+rewrite with the rejection detail as feedback; two strikes -> the claim
+abstains as unverifiable(check_failed). Ungateable claims (params cannot
+build fixtures) abstain the same way — an unverifiable verifier is never
+trusted (Constitution III). First-draft vacuous/error rates are counted for
+SC-005.
 
-Resume is default (FR-008): extraction is cached per card fingerprint in
-claims.json, and settled ledger entries skip synthesis + execution entirely,
-so an interrupted sweep continues with zero repeated model calls.
+Resume is default (FR-008): extraction is cached per card fingerprint AND
+pipeline version in claims.json; ledgers are version-stamped and rotate on
+any mismatch, so entries never mix pipeline generations.
 """
 
 from __future__ import annotations
@@ -33,7 +37,9 @@ from docdrift.schemas import (
     Claim,
     ClaimType,
     ExecutionResult,
+    GateOutcome,
     LedgerEntry,
+    MutantResult,
     OutputClaim,
     SystemOutput,
     Usage,
@@ -41,9 +47,11 @@ from docdrift.schemas import (
     VerdictRecord,
 )
 from docdrift.tools.executor import ExecutionOutcome, run_check
+from docdrift.tools.mutants import FixtureError, gate_check
 from docdrift.tools.profile import snapshot
 
 EXECUTION_RETRIES = 1  # spec edge case: one retry, then unverifiable(execution_error)
+GATE_ATTEMPTS = 2      # FR-005 two-strike policy
 
 
 class CaseNotFound(FileNotFoundError):
@@ -57,6 +65,12 @@ class RunStats:
     synth_calls: int = 0
     tokens_in: int = 0
     tokens_out: int = 0
+    gated: int = 0                 # claims that entered the mutation gate
+    first_attempt_vacuous: int = 0
+    first_attempt_error: int = 0
+    gate_rewrites: int = 0
+    gate_rejected: int = 0         # two strikes -> unverifiable(check_failed)
+    ungateable: int = 0            # FixtureError: params could not build fixtures
 
 
 def _now_iso() -> str:
@@ -71,12 +85,15 @@ def _say(quiet: bool, text: str) -> None:
 async def _settle_claim(
     claim: Claim,
     *,
+    df: pd.DataFrame,
     profile_text: str,
     data_path: Path,
     model: str,
     log_path: Path,
     transport: Transport | None,
     stats: RunStats,
+    lessons: str = "",
+    quiet: bool = True,
 ) -> LedgerEntry:
     if claim.type is ClaimType.prose_unverifiable:
         return LedgerEntry(
@@ -86,14 +103,68 @@ async def _settle_claim(
             model_id="none", tokens_in=0, tokens_out=0, wall_ms=0,
         )
 
-    source, meta = await synthesize_check(claim, profile_text, model=model,
-                                          log_path=log_path, transport=transport)
-    stats.synth_calls += 1
-    stats.tokens_in += meta.input_tokens
-    stats.tokens_out += meta.output_tokens
-    check = Check(claim_id=claim.id, source_code=source, attempt=1,
-                  status=CheckStatus.gate_skipped)  # v1: gate lands in T022
+    # --- synthesize -> mutation gate, two-strike policy (FR-005) ---
+    stats.gated += 1
+    mutant_results: list[MutantResult] = []
+    feedback = ""
+    check: Check | None = None
+    source = ""
+    tokens_in = tokens_out = wall_ms = 0
+    model_id = "unknown"
+    for attempt in range(1, GATE_ATTEMPTS + 1):
+        source, meta = await synthesize_check(claim, profile_text, lessons=lessons,
+                                              feedback=feedback, model=model,
+                                              log_path=log_path, transport=transport)
+        stats.synth_calls += 1
+        tokens_in += meta.input_tokens
+        tokens_out += meta.output_tokens
+        wall_ms += meta.wall_ms
+        model_id = meta.model_id
+        try:
+            gate = await anyio.to_thread.run_sync(gate_check, source, df, claim)
+        except FixtureError as exc:
+            stats.ungateable += 1
+            _say(quiet, f"  ! {claim.id}: ungateable ({exc}) — abstaining per Constitution III")
+            return LedgerEntry(
+                claim=claim,
+                check=Check(claim_id=claim.id, source_code=source, attempt=attempt,
+                            status=CheckStatus.rejected_error),
+                execution=None,
+                verdict_record=VerdictRecord(claim_id=claim.id, verdict=Verdict.unverifiable,
+                                             reason="check_failed"),
+                model_id=model_id, tokens_in=tokens_in, tokens_out=tokens_out, wall_ms=wall_ms,
+            )
+        mutant_results.append(MutantResult(
+            claim_id=claim.id, attempt=attempt, clean_passed=gate.clean_passed,
+            mutant_failed=gate.mutant_failed, outcome=gate.outcome,
+            mutant_desc=gate.mutant_desc))
+        if gate.outcome is GateOutcome.gate_passed:
+            check = Check(claim_id=claim.id, source_code=source, attempt=attempt,
+                          status=CheckStatus.gate_passed)
+            break
+        if attempt == 1:
+            if gate.outcome is GateOutcome.vacuous:
+                stats.first_attempt_vacuous += 1
+            else:
+                stats.first_attempt_error += 1
+            stats.gate_rewrites += 1
+            _say(quiet, f"  x {claim.id}: check rejected by gate ({gate.outcome.value}) — rewriting")
+        feedback = f"{gate.detail} (mutant: {gate.mutant_desc})"
+        check = Check(claim_id=claim.id, source_code=source, attempt=attempt,
+                      status=(CheckStatus.rejected_vacuous
+                              if gate.outcome is GateOutcome.vacuous
+                              else CheckStatus.rejected_error))
 
+    if check is None or check.status is not CheckStatus.gate_passed:
+        stats.gate_rejected += 1
+        return LedgerEntry(
+            claim=claim, check=check, execution=None, mutant_results=mutant_results,
+            verdict_record=VerdictRecord(claim_id=claim.id, verdict=Verdict.unverifiable,
+                                         reason="check_failed"),
+            model_id=model_id, tokens_in=tokens_in, tokens_out=tokens_out, wall_ms=wall_ms,
+        )
+
+    # --- execute the trusted check against the full file ---
     outcome: ExecutionOutcome | None = None
     for _ in range(EXECUTION_RETRIES + 1):
         outcome = await anyio.to_thread.run_sync(run_check, source, data_path)
@@ -116,9 +187,9 @@ async def _settle_claim(
             claimed=claim.quoted_span, computed=outcome.computed,
         )
     return LedgerEntry(claim=claim, check=check, execution=execution,
-                       verdict_record=verdict, model_id=meta.model_id,
-                       tokens_in=meta.input_tokens, tokens_out=meta.output_tokens,
-                       wall_ms=meta.wall_ms)
+                       mutant_results=mutant_results, verdict_record=verdict,
+                       model_id=model_id, tokens_in=tokens_in,
+                       tokens_out=tokens_out, wall_ms=wall_ms)
 
 
 async def _get_claims(
@@ -128,9 +199,10 @@ async def _get_claims(
     """Extraction with card-fingerprint cache (claims.json) for cheap resume."""
     cache_path = out_dir / "claims.json"
     card_fp = fingerprint_text(card)
+    pipeline = f"docdrift {__version__}"
     if not fresh and cache_path.is_file():
         cached = json.loads(cache_path.read_text(encoding="utf-8"))
-        if cached.get("card_fingerprint") == card_fp:
+        if cached.get("card_fingerprint") == card_fp and cached.get("pipeline") == pipeline:
             return [Claim(**c) for c in cached["claims"]], []
 
     claims, metas, warnings = await extract_claims(
@@ -141,6 +213,7 @@ async def _get_claims(
         stats.tokens_out += meta.output_tokens
     cache_path.write_text(json.dumps({
         "card_fingerprint": card_fp,
+        "pipeline": pipeline,
         "claims": [c.model_dump(mode="json") for c in claims],
     }, indent=2), encoding="utf-8")
     return claims, warnings
@@ -189,7 +262,8 @@ async def run_case(
     card = card_path.read_text(encoding="utf-8")
     df = pd.read_parquet(data_path) if data_path.suffix == ".parquet" else pd.read_csv(data_path)
     profile_text = snapshot(df)
-    del df  # profile is the only data the model sees; executor reads from disk
+    # df stays in-process ONLY as the schema/dtype donor for gate fixtures and
+    # never enters model context (FR-006); the executor reads from disk
 
     out_dir = out_root / case_id / "agent"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -223,9 +297,10 @@ async def run_case(
             return
         async with sem:
             try:
-                entry = await _settle_claim(claim, profile_text=profile_text,
+                entry = await _settle_claim(claim, df=df, profile_text=profile_text,
                                             data_path=data_path, model=model,
-                                            log_path=log_path, transport=transport, stats=stats)
+                                            log_path=log_path, transport=transport,
+                                            stats=stats, quiet=quiet)
             except AuthError:
                 raise
             except Exception as exc:
@@ -270,6 +345,11 @@ async def run_case(
     (out_dir / "verdicts.json").write_text(
         output.model_dump_json(indent=2, exclude_none=True) + "\n", encoding="utf-8")
     _write_audit(out_dir, case_id, model_id, ordered)
+    vac_rate = (100.0 * (stats.first_attempt_vacuous + stats.first_attempt_error)
+                / stats.gated) if stats.gated else 0.0
     _say(quiet, f"  -> {stats.extracted} claims, {stats.synth_calls} checks synthesized, "
-                f"{stats.settled_reused} reused")
+                f"{stats.settled_reused} reused | gate: {stats.gated} gated, "
+                f"{stats.first_attempt_vacuous} vacuous + {stats.first_attempt_error} error "
+                f"on first draft ({vac_rate:.0f}%), {stats.gate_rejected} two-strike rejections, "
+                f"{stats.ungateable} ungateable")
     return out_dir / "verdicts.json"

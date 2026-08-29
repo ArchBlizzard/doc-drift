@@ -34,9 +34,26 @@ Rules:
 - "quoted_span" MUST be an EXACT character-for-character substring of the card that states the \
 claim. Never paraphrase, re-punctuate, merge sentences, or fix typos.
 - One entry per distinct assertion; a sentence can contain several claims.
-- "params" carries machine-readable details; ALWAYS include "column" when the claim concerns one \
-column (use the actual column name from the profile when the card names it differently).
 - Extract EVERY claim, including ones you suspect are false — judging comes later.
+
+"params" MUST carry the claim's machine-readable content — verification fixtures are built from \
+these keys, per type (use actual column names from the profile; numbers as plain JSON numbers, \
+stripping $ , % separators):
+- row_count: {"expected": <int>}
+- range: {"column": ..., "min": <number>, "max": <number>}
+- null_rate: {"column": ... (omit only for whole-file claims), "mode": "zero" | "zero_all" | \
+"count" | "pct" | "sentinel", "value": <count or percent for count/pct>, "sentinel": <value>, \
+"tolerance_pp": 2 for approximate percentages}
+- category_set: {"column": ..., "values": [...]} when values are named, else {"column": ..., \
+"count": <int>}
+- aggregate_stat: {"column": ..., "stat": "mean" | "min" | "max", "value": <number>}; for a share \
+of rows meeting a cross-column condition use {"stat": "pair_share", "column": ..., \
+"condition_column": ..., "condition_value": ..., "value": <percent>, "tolerance_pp": 2}
+- temporal_coverage: {"column": ..., "min_date": "YYYY-MM-DD", "max_date": "YYYY-MM-DD"} or \
+{"column": ..., "min_year": <int>, "max_year": <int>}
+- schema: {"column": ...} for existence claims; add {"regex": "..."} for value-pattern claims, or \
+{"sorted": true, "sorted_by": <column>} for row-ordering claims
+Vague quantities ("roughly", "about") get "tolerance_pp": 2 unless the card states otherwise.
 
 Reply with ONLY this JSON:
 {"claims": [{"type": "...", "quoted_span": "...", "params": {...}}]}"""

@@ -24,9 +24,9 @@ def make_entry(claim):
     )
 
 
-def open_ledger(path, data_fp="d1", card_fp="c1", fresh=False):
+def open_ledger(path, data_fp="d1", card_fp="c1", sdk="test", fresh=False):
     return Ledger.open(path, case_id="case_77", data_fingerprint=data_fp,
-                       card_fingerprint=card_fp, sdk_version="test",
+                       card_fingerprint=card_fp, sdk_version=sdk,
                        started="2026-08-29T12:00:00", fresh=fresh)
 
 
@@ -54,6 +54,19 @@ def test_changed_data_fingerprint_invalidates(tmp_path):
     path = tmp_path / "ledger.jsonl"
     open_ledger(path).append(make_entry(make_claim()))
     assert open_ledger(path, data_fp="OTHER").settled() == {}
+
+
+def test_version_bump_invalidates_and_rotates(tmp_path):
+    """A pipeline version bump must never reuse older-generation entries; the
+    old ledger is preserved as .old for the trajectory archive."""
+    path = tmp_path / "ledger.jsonl"
+    open_ledger(path, sdk="docdrift 0.1.0").append(make_entry(make_claim()))
+    bumped = open_ledger(path, sdk="docdrift 0.2.0")
+    assert bumped.settled() == {}
+    assert (tmp_path / "ledger.jsonl.old").exists()
+    # and entries appended under the new header resume normally
+    bumped.append(make_entry(make_claim()))
+    assert len(open_ledger(path, sdk="docdrift 0.2.0").settled()) == 1
 
 
 def test_fresh_discards(tmp_path):

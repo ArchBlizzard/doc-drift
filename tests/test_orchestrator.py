@@ -26,7 +26,13 @@ ROW_CHECK = ('def check(df):\n    n = len(df)\n    return {"passed": n == 3, '
              '"computed": str(n), "evidence_rows": []}\n')
 NULL_CHECK = ('def check(df):\n    bad = df[df["qty"].isna()]\n    return {"passed": bad.empty, '
               '"computed": f"{len(bad)} nulls", "evidence_rows": bad.head(5).to_dict("records")}\n')
-CRASH_CHECK = 'def check(df):\n    raise ValueError("kaboom")\n'
+# discriminates on 20-row gate fixtures, crashes only on the 3-row real file
+CRASH_CHECK = ('def check(df):\n    bad = df[df["qty"].isna()]\n'
+               '    if len(df) == 3:\n        raise ValueError("kaboom")\n'
+               '    return {"passed": bad.empty, "computed": f"{len(bad)} nulls", '
+               '"evidence_rows": []}\n')
+VACUOUS_CHECK = ('def check(df):\n    return {"passed": True, "computed": "fine", '
+                 '"evidence_rows": []}\n')
 
 
 def make_transport(crash_null=False):
@@ -93,9 +99,10 @@ def test_trusted_verdicts_have_executed_checks_and_prose_has_none(case_root, tmp
     for span in ("The table holds 3 rows.", "There are no missing values in the qty column."):
         e = entries[span]
         assert e.check is not None and e.execution is not None
-        assert e.check.status is CheckStatus.gate_skipped  # v1 marker
+        assert e.check.status is CheckStatus.gate_passed  # v2: trusted == gated
+        assert e.mutant_results and e.mutant_results[-1].outcome.value == "gate_passed"
     prose = entries["Collected by hand."]
-    assert prose.check is None and prose.execution is None
+    assert prose.check is None and prose.execution is None and not prose.mutant_results
 
 
 def test_execution_error_after_retry(case_root, tmp_path):
@@ -127,6 +134,50 @@ def test_fresh_reruns_everything(case_root, tmp_path):
 
 def test_exit_3_on_missing_case():
     assert run_agent.main(["case_00"]) == 3
+
+
+def test_gate_rejects_vacuous_then_accepts_rewrite(case_root, tmp_path):
+    """Acceptance scenario 5: vacuous first draft -> rewrite with mutant diff
+    -> gate passes -> trusted verdict."""
+    synth_calls = []
+
+    async def transport(system_prompt, user_prompt, model):
+        if "You extract" in system_prompt:
+            reply = {"claims": [EXTRACT_REPLY["claims"][1]]}  # just the null claim
+            return RawReply(json.dumps(reply), "claude-test-1", 100, 50)
+        synth_calls.append(user_prompt)
+        src = VACUOUS_CHECK if len(synth_calls) == 1 else NULL_CHECK
+        return RawReply(json.dumps({"source_code": src}), "claude-test-1", 40, 20)
+
+    out = anyio.run(lambda: orchestrator.run_case(
+        "case_77", cases_root=case_root, out_root=tmp_path / "runs",
+        transport=transport, quiet=True))
+    assert len(synth_calls) == 2
+    assert "REJECTED" in synth_calls[1] and "PASSED the mutant" in synth_calls[1]
+    entry = by_claim(tmp_path / "runs")["There are no missing values in the qty column."]
+    outcomes = [m.outcome.value for m in entry.mutant_results]
+    assert outcomes == ["vacuous", "gate_passed"]
+    assert entry.check.status is CheckStatus.gate_passed and entry.check.attempt == 2
+    parsed = SystemOutput.model_validate_json(out.read_text())
+    assert parsed.claims[0].verdict is Verdict.violated  # 1 real null found
+
+
+def test_gate_two_strikes_abstains(case_root, tmp_path):
+    async def transport(system_prompt, user_prompt, model):
+        if "You extract" in system_prompt:
+            reply = {"claims": [EXTRACT_REPLY["claims"][1]]}
+            return RawReply(json.dumps(reply), "claude-test-1", 100, 50)
+        return RawReply(json.dumps({"source_code": VACUOUS_CHECK}), "claude-test-1", 40, 20)
+
+    out = anyio.run(lambda: orchestrator.run_case(
+        "case_77", cases_root=case_root, out_root=tmp_path / "runs",
+        transport=transport, quiet=True))
+    entry = by_claim(tmp_path / "runs")["There are no missing values in the qty column."]
+    assert entry.check.status is CheckStatus.rejected_vacuous
+    assert [m.outcome.value for m in entry.mutant_results] == ["vacuous", "vacuous"]
+    parsed = SystemOutput.model_validate_json(out.read_text())
+    claim = parsed.claims[0]
+    assert claim.verdict is Verdict.unverifiable and claim.reason.value == "check_failed"
 
 
 def test_single_claim_hard_failure_degrades_not_kills(case_root, tmp_path):

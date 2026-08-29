@@ -44,19 +44,38 @@ class Ledger:
                                  sdk_version=sdk_version, started=started)
         if fresh and path.exists():
             path.unlink()
+        if path.exists():
+            # rotate incompatible ledgers (changed data/card, or a pipeline
+            # version bump) so entries never mix pipeline generations
+            first = path.read_text(encoding="utf-8").splitlines()[:1]
+            stale = True
+            if first:
+                try:
+                    stored = RunLedgerHeader.model_validate_json(first[0])
+                    stale = (stored.data_fingerprint != data_fingerprint
+                             or stored.card_fingerprint != card_fingerprint
+                             or stored.sdk_version != sdk_version)
+                except Exception:
+                    stale = True
+            if stale:
+                backup = path.with_suffix(".jsonl.old")
+                if backup.exists():
+                    backup.unlink()
+                path.rename(backup)
         if not path.exists():
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(header.model_dump_json() + "\n", encoding="utf-8")
         return cls(path, header)
 
     def settled(self) -> dict[str, LedgerEntry]:
-        """Entries reusable for THIS case (fingerprints must match)."""
+        """Entries reusable for THIS case (fingerprints + version must match)."""
         lines = self.path.read_text(encoding="utf-8").splitlines()
         if not lines:
             return {}
         stored = RunLedgerHeader.model_validate_json(lines[0])
         if (stored.data_fingerprint != self.header.data_fingerprint
-                or stored.card_fingerprint != self.header.card_fingerprint):
+                or stored.card_fingerprint != self.header.card_fingerprint
+                or stored.sdk_version != self.header.sdk_version):
             return {}
         out: dict[str, LedgerEntry] = {}
         for line in lines[1:]:
