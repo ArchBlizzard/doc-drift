@@ -1,0 +1,87 @@
+{
+  "case_id": "case_02",
+  "dataset": "penguins",
+  "seed": 102,
+  "gold_claims": [
+    {
+      "id": "p_prov",
+      "span_start": 71,
+      "span_end": 161,
+      "quoted_span": "collected at Palmer Station, Antarctica, by Dr. Kristen Gorman and the Palmer LTER program",
+      "type": "prose_unverifiable",
+      "gold_verdict": "unverifiable"
+    },
+    {
+      "id": "p_rows",
+      "span_start": 163,
+      "span_end": 204,
+      "quoted_span": "The table holds 344 penguin observations.",
+      "type": "row_count",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "p_species",
+      "span_start": 217,
+      "span_end": 268,
+      "quoted_span": "Three species appear: Adelie, Chinstrap and Gentoo.",
+      "type": "category_set",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "p_islands",
+      "span_start": 269,
+      "span_end": 334,
+      "quoted_span": "Sampling covered three islands named Biscoe, Dream and Torgersen.",
+      "type": "category_set",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "p_year",
+      "span_start": 335,
+      "span_end": 376,
+      "quoted_span": "Field seasons ran from 2007 through 2011.",
+      "type": "temporal_coverage",
+      "gold_verdict": "violated",
+      "corruption_op": "stale_temporal",
+      "note": "card coverage rewritten to 'Field seasons ran from 2007 through 2011.'; data unchanged"
+    },
+    {
+      "id": "p_mass",
+      "span_start": 377,
+      "span_end": 420,
+      "quoted_span": "Body mass ranges from 2,700 to 6,300 grams.",
+      "type": "range",
+      "gold_verdict": "violated",
+      "corruption_op": "shift_range",
+      "note": "set 3 values of 'body_mass_g' to 7150.0, outside the documented range"
+    },
+    {
+      "id": "p_bill",
+      "span_start": 421,
+      "span_end": 452,
+      "quoted_span": "Average bill length is 43.9 mm.",
+      "type": "aggregate_stat",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "p_phantom",
+      "span_start": 453,
+      "span_end": 516,
+      "quoted_span": "A `tag_id` column gives each bird a unique tracking identifier.",
+      "type": "schema",
+      "gold_verdict": "violated",
+      "corruption_op": "phantom_column",
+      "note": "phantom column 'tag_id': sentence inserted, column absent from data"
+    },
+    {
+      "id": "p_sex_nulls",
+      "span_start": 659,
+      "span_end": 710,
+      "quoted_span": "the `sex` column is missing for roughly 8% of birds",
+      "type": "null_rate",
+      "gold_verdict": "violated",
+      "corruption_op": "fuzzy_coarsen",
+      "note": "coarsened to 'the `sex` column is missing for roughly 8% of birds'; true value 3.2% is outside the \u00b12pp band"
+    }
+  ]
+}

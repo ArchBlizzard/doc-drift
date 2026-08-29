@@ -1,0 +1,71 @@
+{
+  "case_id": "case_04",
+  "dataset": "online_retail_sample",
+  "seed": 104,
+  "gold_claims": [
+    {
+      "id": "r_prov",
+      "span_start": 90,
+      "span_end": 163,
+      "quoted_span": "maintained by the back-office team of a UK-based online giftware retailer",
+      "type": "prose_unverifiable",
+      "gold_verdict": "unverifiable"
+    },
+    {
+      "id": "r_rows",
+      "span_start": 165,
+      "span_end": 204,
+      "quoted_span": "The extract contains 40,000 line items.",
+      "type": "row_count",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "r_dates",
+      "span_start": 205,
+      "span_end": 254,
+      "quoted_span": "All invoices fall between 1 and 24 December 2010.",
+      "type": "temporal_coverage",
+      "gold_verdict": "violated",
+      "corruption_op": "stale_temporal",
+      "note": "card coverage rewritten to 'All invoices fall between 1 and 24 December 2010.'; data unchanged"
+    },
+    {
+      "id": "r_qty",
+      "span_start": 312,
+      "span_end": 350,
+      "quoted_span": "Quantities run from -9,360 up to 2,880",
+      "type": "range",
+      "gold_verdict": "violated",
+      "corruption_op": "shift_range",
+      "note": "set 2 values of 'quantity' to 3500, outside the documented range"
+    },
+    {
+      "id": "r_countries",
+      "span_start": 408,
+      "span_end": 438,
+      "quoted_span": "Buyers come from 24 countries.",
+      "type": "category_set",
+      "gold_verdict": "violated",
+      "corruption_op": "add_category",
+      "note": "introduced undocumented category 'Wakanda' into 'country' (8 rows)"
+    },
+    {
+      "id": "r_cust_nulls",
+      "span_start": 457,
+      "span_end": 503,
+      "quoted_span": "Customer IDs are absent on roughly 20% of rows",
+      "type": "null_rate",
+      "gold_verdict": "violated",
+      "corruption_op": "fuzzy_coarsen",
+      "note": "coarsened to 'Customer IDs are absent on roughly 20% of rows'; true value 34.97% is outside the \u00b12pp band"
+    },
+    {
+      "id": "r_desc_nulls",
+      "span_start": 529,
+      "span_end": 570,
+      "quoted_span": "123 line items lack a product description",
+      "type": "null_rate",
+      "gold_verdict": "holds"
+    }
+  ]
+}

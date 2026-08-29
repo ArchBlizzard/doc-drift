@@ -1,0 +1,24 @@
+case_id: case_04
+dataset: online_retail_sample
+seed: 104
+corruptions:
+  - op: stale_temporal
+    target: card
+    claim: r_dates
+    params: { new_span: "All invoices fall between 1 and 24 December 2010." }
+  - op: add_category
+    target: data
+    claim: r_countries
+    params: { new_value: Wakanda, n: 8 }
+  - op: shift_range
+    target: data
+    claim: r_qty
+    params: { out_value: 3500, n: 2 }
+  - op: fuzzy_coarsen
+    target: card
+    claim: r_cust_nulls
+    params:
+      new_span: "Customer IDs are absent on roughly 20% of rows"
+      true_value: "34.97%"
+kept_true_claims: 2
+kept_unverifiable_claims: 1

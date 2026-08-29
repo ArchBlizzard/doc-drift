@@ -1,0 +1,87 @@
+{
+  "case_id": "case_05",
+  "dataset": "taxi_jan2023_50k",
+  "seed": 105,
+  "gold_claims": [
+    {
+      "id": "t_prov",
+      "span_start": 73,
+      "span_end": 153,
+      "quoted_span": "published by the NYC Taxi and Limousine Commission under its trip-record program",
+      "type": "prose_unverifiable",
+      "gold_verdict": "unverifiable"
+    },
+    {
+      "id": "t_rows",
+      "span_start": 155,
+      "span_end": 185,
+      "quoted_span": "This sample holds 50,000 trips",
+      "type": "row_count",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "t_pass",
+      "span_start": 234,
+      "span_end": 269,
+      "quoted_span": "Passenger counts range from 0 to 6.",
+      "type": "range",
+      "gold_verdict": "violated",
+      "corruption_op": "shift_range",
+      "note": "set 3 values of 'passenger_count' to 9.0, outside the documented range"
+    },
+    {
+      "id": "t_pay",
+      "span_start": 270,
+      "span_end": 306,
+      "quoted_span": "Payment types are coded 1 through 4.",
+      "type": "range",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "t_flag",
+      "span_start": 307,
+      "span_end": 360,
+      "quoted_span": "The `store_and_fwd_flag` column is either `N` or `Y`.",
+      "type": "category_set",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "t_phantom",
+      "span_start": 361,
+      "span_end": 420,
+      "quoted_span": "A `driver_id` column identifies the operator on every trip.",
+      "type": "schema",
+      "gold_verdict": "violated",
+      "corruption_op": "phantom_column",
+      "note": "phantom column 'driver_id': sentence inserted, column absent from data"
+    },
+    {
+      "id": "t_fare",
+      "span_start": 421,
+      "span_end": 454,
+      "quoted_span": "The average total fare is $34.05.",
+      "type": "aggregate_stat",
+      "gold_verdict": "violated",
+      "corruption_op": "perturb_stat",
+      "note": "claimed statistic rewritten to 'The average total fare is $34.05.'; data unchanged"
+    },
+    {
+      "id": "t_dates",
+      "span_start": 469,
+      "span_end": 529,
+      "quoted_span": "Pickup timestamps run from 1 January 2023 to 31 January 2023",
+      "type": "temporal_coverage",
+      "gold_verdict": "violated",
+      "corruption_op": "stale_temporal",
+      "note": "card coverage rewritten to 'Pickup timestamps run from 1 January 2023 to 31 January 2023'; data unchanged"
+    },
+    {
+      "id": "t_min_total",
+      "span_start": 733,
+      "span_end": 783,
+      "quoted_span": "Refunded trips push the minimum total to -$351.00.",
+      "type": "aggregate_stat",
+      "gold_verdict": "holds"
+    }
+  ]
+}

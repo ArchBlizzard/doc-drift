@@ -73,7 +73,7 @@ See `contracts/verdicts.schema.json`. `{case_id, system, model_id, claims: [{quo
 ## Eval entities
 
 ### CaseSpec (`eval/specs/case_NN.yaml`)
-`{case_id, dataset: data_src filename | "synthetic_transactions_1m", seed, corruptions: [{op: one-of-8, target: card|data, params}], kept_true_claims: int, kept_unverifiable_claims: int}`
+`{case_id, dataset: data_src filename | "synthetic_transactions_1m", seed, corruptions: [{op: one-of-8, target: card|data, claim?: manifest-claim-id, params}], kept_true_claims: int, kept_unverifiable_claims: int}` (`claim` is absent for `phantom_column`, whose template is built from params)
 
 ### GoldClaim (`eval/gold/case_NN_gold.json`)
 File wrapper: `{case_id, dataset, seed, gold_claims: [...]}` per `contracts/gold.schema.json`. Each gold claim: `{id, span_start, span_end, quoted_span, type, gold_verdict, corruption_op?, note?}` (no per-claim `case_id` — the file-level field scopes it) — emitted by `make_cases.py` by construction; same span invariant as Claim.

@@ -1,0 +1,27 @@
+case_id: case_02
+dataset: penguins
+seed: 102
+corruptions:
+  - op: shift_range
+    target: data
+    claim: p_mass
+    params: { out_value: 7150.0, n: 3 }
+  - op: stale_temporal
+    target: card
+    claim: p_year
+    params: { new_span: "Field seasons ran from 2007 through 2011." }
+  - op: phantom_column
+    target: card
+    params:
+      claim_id: p_phantom
+      column: tag_id
+      sentence: "A `tag_id` column gives each bird a unique tracking identifier."
+      anchor: "Average bill length is 43.9 mm."
+  - op: fuzzy_coarsen
+    target: card
+    claim: p_sex_nulls
+    params:
+      new_span: "the `sex` column is missing for roughly 8% of birds"
+      true_value: "3.2%"
+kept_true_claims: 4
+kept_unverifiable_claims: 1

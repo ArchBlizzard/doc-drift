@@ -100,8 +100,12 @@ def _rewrite_span(card_text: str, old_span: str, new_span: str) -> str:
 @_register("inject_nulls")
 def inject_nulls(card: str, df: pd.DataFrame, claim: ManifestClaim,
                  rng: np.random.Generator, params: dict[str, Any]) -> OpResult:
-    """Violate a null_rate claim ('no missing values in X') by injecting nulls."""
-    col = claim.params["column"]
+    """Violate a null_rate claim ('no missing values in X') by injecting nulls.
+
+    For whole-file claims (mode zero_all, no column of their own), the target
+    column comes from the op params instead.
+    """
+    col = params.get("column") or claim.params["column"]
     n = int(params.get("n", 3))
     df = df.copy()
     rows = rng.choice(len(df), size=n, replace=False)

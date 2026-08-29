@@ -207,6 +207,7 @@ class GoldFile(BaseModel):
 class CorruptionSpec(BaseModel):
     op: str
     target: str = Field(pattern=r"^(card|data)$")
+    claim: str | None = None  # manifest claim id; None for phantom_column (template built from params)
     params: dict[str, Any] = Field(default_factory=dict)
 
 

@@ -1,0 +1,22 @@
+case_id: case_01
+dataset: adult
+seed: 101
+corruptions:
+  - op: inject_nulls
+    target: data
+    claim: a_nulls
+    params: { column: occupation, n: 17 }
+  - op: add_category
+    target: data
+    claim: a_race
+    params: { new_value: Pacific-Islander-Other, n: 6 }
+  - op: perturb_stat
+    target: card
+    claim: a_mean_age
+    params: { new_span: "The average age is 42.3 years." }
+  - op: row_count_drift
+    target: data
+    claim: a_rows
+    params: { mode: dup, n: 30 }
+kept_true_claims: 4
+kept_unverifiable_claims: 1
