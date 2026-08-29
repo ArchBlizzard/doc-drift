@@ -61,9 +61,12 @@ async def run_case(case_id: str, *, model: str = MODEL_AGENT,
 
     t0 = time.monotonic()
     reply, meta = await call_json(
-        BaselineReply, SYSTEM_PROMPT, build_stratified_prompt(card, df),
+        BaselineReply,
+        SYSTEM_PROMPT + "\n\nDo NOT narrate any analysis — output ONLY the JSON object.",
+        build_stratified_prompt(card, df),
         model=model, label=f"{SYSTEM_NAME}:{case_id}",
         log_path=out_dir / "messages.jsonl", transport=transport,
+        max_turns=10,  # huge prompts trigger long output continuations before the JSON
     )
     wall_s = time.monotonic() - t0
 

@@ -87,12 +87,15 @@ def _usage_from(obj: object) -> tuple[int, int]:
     return int(getattr(u, "input_tokens", 0) or 0), int(getattr(u, "output_tokens", 0) or 0)
 
 
-async def sdk_transport(system_prompt: str, user_prompt: str, model: str) -> RawReply:
-    """Real transport: one no-tools, single-turn Agent SDK query."""
+async def sdk_transport(system_prompt: str, user_prompt: str, model: str,
+                        max_turns: int = 3) -> RawReply:
+    """Real transport: one no-tools Agent SDK query. `max_turns` bounds the
+    CLI's output-continuation turns — huge prompts (the stratified removed
+    experiment) need more room before the final JSON lands."""
     from claude_agent_sdk import ClaudeAgentOptions, query  # lazy: unit tests stay offline
 
     options = ClaudeAgentOptions(
-        model=model, max_turns=3, allowed_tools=[],
+        model=model, max_turns=max_turns, allowed_tools=[],
         system_prompt=system_prompt, cwd=str(_neutral_cwd()),
     )
     text_parts: list[str] = []
@@ -160,9 +163,14 @@ async def call_json(
     label: str = "call",
     log_path: Path | None = None,
     transport: Transport | None = None,
+    max_turns: int = 3,
 ) -> tuple[M, CallMeta]:
     """One judgment point: validated JSON out, ≤LLM_RETRY_CAP retries, logged."""
-    send = transport or sdk_transport
+    if transport is None:
+        async def send(s: str, u: str, m: str) -> RawReply:
+            return await sdk_transport(s, u, m, max_turns=max_turns)
+    else:
+        send = transport
     t0 = time.monotonic()
     total_in = total_out = 0
     model_id = "unknown"
