@@ -1,0 +1,16 @@
+# secrets
+.env
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# generated at runtime (representative ledgers are curated into trajectories/)
+runs/
+
+# large generated eval artifacts are rebuilt by `make data` (gold + specs stay committed)
+cases/
