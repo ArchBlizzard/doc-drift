@@ -96,6 +96,9 @@ def test_temporal_dates_and_years():
 def test_schema_exists_regex_sorted():
     ph = build_fixtures(DF, claim(ClaimType.schema, {"column": "tag_id"}))
     assert "tag_id" in ph.clean.columns and "tag_id" not in ph.mutant.columns
+    # unique + non-null, so "unique identifier"-style phantom sentences are
+    # satisfied by the clean fixture (v2 finding)
+    assert ph.clean["tag_id"].is_unique and ph.clean["tag_id"].notna().all()
     rx = build_fixtures(DF, claim(ClaimType.schema,
                                   {"column": "coupon", "regex": r"CP-\d{5}"}))
     import re

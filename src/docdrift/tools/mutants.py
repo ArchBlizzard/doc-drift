@@ -297,10 +297,14 @@ def _schema(df: pd.DataFrame, claim: Claim) -> FixturePair:
         hi_pos = int(mutant[sort_col].values.argmax())
         mutant.iloc[[lo_pos, hi_pos]] = mutant.iloc[[hi_pos, lo_pos]].values
         return FixturePair(clean, mutant, f"mutant swaps two rows so {sort_col!r} is not sorted")
-    # default: existence claim (covers phantom columns)
+    # default: existence claim (covers phantom columns). The clean fixture's
+    # values are unique and non-null so sentences like "gives each row a
+    # unique identifier" / "always populated" are satisfied too — a constant
+    # filler made legitimate checks fail the clean fixture (v2 finding,
+    # CHANGELOG v3).
     clean = _base(df, FIXTURE_ROWS)
     if col not in clean.columns:
-        clean[col] = 1
+        clean[col] = np.arange(1, len(clean) + 1)
     mutant = clean.drop(columns=[col])
     return FixturePair(clean, mutant, f"mutant is missing the {col!r} column entirely")
 
