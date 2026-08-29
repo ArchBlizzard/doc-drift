@@ -30,6 +30,7 @@ from docdrift.agents.extractor import extract_claims
 from docdrift.agents.synthesizer import synthesize_check
 from docdrift.config import CASES_DIR, CLAIM_SEMAPHORE, MODEL_AGENT, RUNS_DIR
 from docdrift.ledger import Ledger, claim_key, fingerprint_bytes, fingerprint_text
+from docdrift.lessons import load_lessons
 from docdrift.llm import AuthError, Transport
 from docdrift.schemas import (
     Check,
@@ -269,6 +270,7 @@ async def run_case(
     out_dir.mkdir(parents=True, exist_ok=True)
     log_path = out_dir / "messages.jsonl"
     stats = RunStats()
+    lessons = load_lessons()  # T026 memory, injected into every synthesis
 
     ledger = Ledger.open(
         out_dir / "ledger.jsonl", case_id=case_id,
@@ -300,7 +302,7 @@ async def run_case(
                 entry = await _settle_claim(claim, df=df, profile_text=profile_text,
                                             data_path=data_path, model=model,
                                             log_path=log_path, transport=transport,
-                                            stats=stats, quiet=quiet)
+                                            stats=stats, lessons=lessons, quiet=quiet)
             except AuthError:
                 raise
             except Exception as exc:
