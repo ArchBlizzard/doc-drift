@@ -68,7 +68,7 @@ docdrift/
 
 ## 3. Agent Architecture
 
-**Orchestration mechanism:** plain Python **asyncio pipeline** in `orchestrator.py`; each stage is a fresh `ClaudeSDKClient` session (Claude Agent SDK, Python) with stage-specific system prompt and **in-process MCP custom tools** (`@tool` + `create_sdk_mcp_server`). Per-claim work (synthesize → mutation-test → execute) fans out with `asyncio.Semaphore(4)`. No filesystem/bash tools are granted to the model — only the three custom tools below — so the trajectory is small, auditable, and every action is purposeful. Deliberate choice to call out in the README: the orchestrator is deterministic Python and only *judgment* steps are LLM calls.
+**Orchestration mechanism:** plain Python **async pipeline** in `orchestrator.py` (anyio). Each stage is a single-purpose, **no-tools** Agent SDK query with a stage-specific system prompt and pydantic-validated JSON output (`llm.call_json`, ≤2 retries). The model is granted ZERO tools: profile, executor, and mutant fixtures are ordinary Python invoked by the orchestrator, with results flowing into the next prompt (research R9 — simplification settled during T019). Per-claim work fans out under `anyio.Semaphore(4)`. Deliberate choice to call out in the README: the orchestrator is deterministic Python and only *judgment* steps are LLM calls.
 
 | Stage | Exact job | Capability used | Why it earns rubric points |
 |---|---|---|---|

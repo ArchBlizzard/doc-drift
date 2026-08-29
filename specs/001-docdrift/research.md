@@ -68,6 +68,14 @@ Decisions recorded in spec-kit format: **Decision / Rationale / Alternatives con
 
 **Alternatives considered:** N mutants per claim (rejected for v2: one well-chosen mutant per claim type suffices; revisit only if vacuous checks survive the gate in practice); skipping the gate for "simple" claim types (rejected: the measured vacuous rate on simple types is part of the evidence).
 
+## R9 — No MCP tools: every model call is a no-tools query (settled during T019)
+
+**Decision:** The pipeline grants the model zero tools. Extractor, synthesizer, and reporter are single-turn, no-tools queries returning validated JSON; the profile snapshot, sandboxed executor, and mutant fixtures are plain Python invoked by the orchestrator, with results flowing into the next prompt.
+
+**Rationale:** The stage jobs never need model-initiated tool calls — the orchestrator already knows what to run next (Constitution IV). Dropping the sketched in-process MCP server removes a moving part, keeps trajectories small and auditable, and makes the "model never drives control flow" claim literal.
+
+**Alternatives considered:** in-process MCP custom tools via `create_sdk_mcp_server` (plan.md's original sketch — rejected as unnecessary indirection); a persistent `ClaudeSDKClient` session per stage (rejected: fresh single-turn queries are simpler and each call's full context is one messages.jsonl record; the per-call CLI spawn cost ~5-10s is acceptable at our call volume).
+
 ---
 
 ## Open spikes (scheduled in tasks.md)
