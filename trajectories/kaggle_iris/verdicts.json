@@ -1,0 +1,90 @@
+{
+  "case_id": "demo_kaggle_iris",
+  "system": "agent",
+  "model_id": "claude-sonnet-5",
+  "claims": [
+    {
+      "quoted_span": "The Iris dataset was used in R.A. Fisher's classic 1936 paper, [The Use of Multiple Measurements in Taxonomic Problems](http://rcs.chemometrics.ru/Tutorials/classification/Fisher.pdf), and can also be found on the [UCI Machine Learning Repository][1].",
+      "span_start": 0,
+      "span_end": 251,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "three iris species",
+      "span_start": 265,
+      "span_end": 283,
+      "verdict": "holds",
+      "claimed": "three iris species",
+      "computed": "3 unique species: ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']"
+    },
+    {
+      "quoted_span": "three iris species with 50 samples each",
+      "span_start": 265,
+      "span_end": 304,
+      "verdict": "holds",
+      "claimed": "three iris species with 50 samples each",
+      "computed": "total_rows=150, species_counts={'Iris-setosa': 50, 'Iris-versicolor': 50, 'Iris-virginica': 50}"
+    },
+    {
+      "quoted_span": "One flower species is linearly separable from the other two, but the other two are not linearly separable from each other.",
+      "span_start": 351,
+      "span_end": 473,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "Id",
+      "span_start": 512,
+      "span_end": 514,
+      "verdict": "holds",
+      "claimed": "Id",
+      "computed": "rows=150, nulls=0, unique=150, int_like=True"
+    },
+    {
+      "quoted_span": "SepalLengthCm",
+      "span_start": 518,
+      "span_end": 531,
+      "verdict": "holds",
+      "claimed": "SepalLengthCm",
+      "computed": "dtype=float64, non_numeric_count=0, n=150"
+    },
+    {
+      "quoted_span": "SepalWidthCm",
+      "span_start": 535,
+      "span_end": 547,
+      "verdict": "holds",
+      "claimed": "SepalWidthCm",
+      "computed": "dtype=float64, non_numeric_count=0"
+    },
+    {
+      "quoted_span": "PetalLengthCm",
+      "span_start": 551,
+      "span_end": 564,
+      "verdict": "holds",
+      "claimed": "PetalLengthCm",
+      "computed": "dtype=float64, non-null numeric count=150/150, nulls=0"
+    },
+    {
+      "quoted_span": "PetalWidthCm",
+      "span_start": 568,
+      "span_end": 580,
+      "verdict": "holds",
+      "claimed": "PetalWidthCm",
+      "computed": "column 'PetalWidthCm' present=True, dtype=float64, numeric_non_null=150/150"
+    },
+    {
+      "quoted_span": "Species",
+      "span_start": 584,
+      "span_end": 591,
+      "verdict": "holds",
+      "claimed": "Species",
+      "computed": "dtype=object, non-null=150, non-string-values=0"
+    }
+  ],
+  "usage": {
+    "input_tokens": 2,
+    "output_tokens": 4379
+  },
+  "wall_s": 71.82
+}
