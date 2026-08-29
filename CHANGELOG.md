@@ -74,3 +74,48 @@ baseline_plus rests on (a) the one claim class only execution settles and
 (i) measure the vacuous-check rate the ungated v1 cannot see, and (ii) run the
 full 12-case suite where summary statistics provably fail (rare category after
 row ~810k).
+
+## v2 — Mutation gate + the full 12-case suite (T025)
+
+**What:** No check is trusted until it passes a clean fixture that satisfies
+the claim AND fails a mutant that violates it; a rejection triggers one
+rewrite carrying the mutant diff; two strikes → the claim abstains as
+`unverifiable(check_failed)` (FR-005). Typed claim params (extractor v2) feed
+deterministic fixture builders for all seven checkable claim types. Cases
+07–11 (second corruption draws) and the redesigned hard case_12 joined the
+suite. **FR-012 was amended mid-phase** when we realized `describe()`'s
+unique/count rows expose category and null-rate violations (the original
+hard-case design was summary-visible — v0's baseline_plus 0.984 was the
+warning): the shipped hard case plants a value-pattern violation after row
+810k in a ~2,000-code column (below any top-10 value count) and a fuzzy
+cross-column share no per-column summary can compute.
+
+**Result** ([results/v2.md](results/v2.md), [results/v2_per_claim.csv](results/v2_per_claim.csv)):
+agent **0.922** macro-F1, 38/41 violations; baseline_plus 0.951, 38/41;
+baseline 0.457, 11/41. The separation the suite was built to measure showed up
+exactly where predicted:
+
+- **Hard case: agent 9/9; baseline_plus missed both planted violations** —
+  it confirmed the corrupted coupon-pattern claim as `holds` from sampled
+  values, while the agent's executed check found "173 invalid" past row 810k
+  and computed the true 14.20% cross-column share against "roughly 10%".
+- **Miss quality diverges:** all 3 agent misses are calibrated abstentions;
+  2 of baseline_plus's 3 misses are false confirmations of violated claims.
+  The plain baseline even "verified" a row count because it "matches the known
+  UCI dataset size" — memorized world knowledge substituting for the file.
+- **Gate rate (SC-005):** 106 gated, 8 first-draft rejections (7.5%; 3.8%
+  strictly vacuous — below the 15–25% hypothesis: typed params + the check
+  contract absorbed risk pre-gate), 4 recovered by rewrite (both fresh
+  phantom columns among them), 4 two-strike abstentions. Ledgers under
+  `runs/*/agent/ledger.jsonl` carry every rejected check's source.
+
+**Failure observed:** the gate's exists-fixture used a constant filler, so
+uniqueness-style phantom sentences ("gives each bird a unique tracking
+identifier") made legitimate checks fail the clean fixture → case_02's
+phantom regressed from caught (v1) to abstained (v2). Two further misses:
+proxy-count checks the gate rightly refused (case_04 countries), and a
+compound sentence split whose abstaining half won span alignment (case_01).
+
+**Decision:** kept — the gate's cost is measured (three abstentions, zero
+false confirmations) and each miss has a targeted v3 fix: unique-valued
+exists-fixtures, and lessons.md entries 7–8.
