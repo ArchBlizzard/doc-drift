@@ -1,0 +1,25 @@
+case_id: case_07
+dataset: adult
+seed: 207
+corruptions:
+  - op: shift_range
+    target: data
+    claim: a_age
+    params: { out_value: 121, n: 2 }
+  - op: perturb_stat
+    target: card
+    claim: a_hours
+    params: { new_span: "Weekly working hours span 1 to 80." }
+  - op: add_category
+    target: data
+    claim: a_sex
+    params: { new_value: Unknown, n: 5 }
+  - op: phantom_column
+    target: card
+    params:
+      claim_id: a_phantom
+      column: zip_code
+      sentence: "A `zip_code` column records the respondent's residence area."
+      anchor: "The `income` label is binary: `<=50K` or `>50K`."
+kept_true_claims: 4
+kept_unverifiable_claims: 1

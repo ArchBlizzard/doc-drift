@@ -1,0 +1,77 @@
+{
+  "case_id": "case_10",
+  "dataset": "online_retail_sample",
+  "seed": 210,
+  "gold_claims": [
+    {
+      "id": "r_prov",
+      "span_start": 90,
+      "span_end": 163,
+      "quoted_span": "maintained by the back-office team of a UK-based online giftware retailer",
+      "type": "prose_unverifiable",
+      "gold_verdict": "unverifiable"
+    },
+    {
+      "id": "r_rows",
+      "span_start": 165,
+      "span_end": 204,
+      "quoted_span": "The extract contains 42,000 line items.",
+      "type": "row_count",
+      "gold_verdict": "violated",
+      "corruption_op": "perturb_stat",
+      "note": "claimed statistic rewritten to 'The extract contains 42,000 line items.'; data unchanged"
+    },
+    {
+      "id": "r_dates",
+      "span_start": 205,
+      "span_end": 254,
+      "quoted_span": "All invoices fall between 1 and 21 December 2010.",
+      "type": "temporal_coverage",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "r_qty",
+      "span_start": 312,
+      "span_end": 350,
+      "quoted_span": "Quantities run from -9,360 up to 2,880",
+      "type": "range",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "r_countries",
+      "span_start": 408,
+      "span_end": 438,
+      "quoted_span": "Buyers come from 24 countries.",
+      "type": "category_set",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "r_phantom",
+      "span_start": 439,
+      "span_end": 490,
+      "quoted_span": "A `warehouse_id` column tracks the fulfilment site.",
+      "type": "schema",
+      "gold_verdict": "violated",
+      "corruption_op": "phantom_column",
+      "note": "phantom column 'warehouse_id': sentence inserted, column absent from data"
+    },
+    {
+      "id": "r_cust_nulls",
+      "span_start": 509,
+      "span_end": 555,
+      "quoted_span": "Customer IDs are absent on roughly 35% of rows",
+      "type": "null_rate",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "r_desc_nulls",
+      "span_start": 581,
+      "span_end": 622,
+      "quoted_span": "123 line items lack a product description",
+      "type": "null_rate",
+      "gold_verdict": "violated",
+      "corruption_op": "inject_nulls",
+      "note": "injected 30 nulls into 'description'; card still claims none"
+    }
+  ]
+}

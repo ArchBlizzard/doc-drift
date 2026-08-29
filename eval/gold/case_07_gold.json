@@ -1,0 +1,95 @@
+{
+  "case_id": "case_07",
+  "dataset": "adult",
+  "seed": 207,
+  "gold_claims": [
+    {
+      "id": "a_rows",
+      "span_start": 105,
+      "span_end": 145,
+      "quoted_span": "The file contains exactly 32,561 records",
+      "type": "row_count",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "a_prov",
+      "span_start": 171,
+      "span_end": 236,
+      "quoted_span": "extracted from the 1994 US Census bureau database by Barry Becker",
+      "type": "prose_unverifiable",
+      "gold_verdict": "unverifiable"
+    },
+    {
+      "id": "a_age",
+      "span_start": 304,
+      "span_end": 338,
+      "quoted_span": "Reported ages range from 17 to 90.",
+      "type": "range",
+      "gold_verdict": "violated",
+      "corruption_op": "shift_range",
+      "note": "set 2 values of 'age' to 121, outside the documented range"
+    },
+    {
+      "id": "a_sex",
+      "span_start": 339,
+      "span_end": 402,
+      "quoted_span": "The `sex` column takes exactly two values: `Male` and `Female`.",
+      "type": "category_set",
+      "gold_verdict": "violated",
+      "corruption_op": "add_category",
+      "note": "introduced undocumented category 'Unknown' into 'sex' (5 rows)"
+    },
+    {
+      "id": "a_race",
+      "span_start": 403,
+      "span_end": 452,
+      "quoted_span": "The `race` column records one of five categories.",
+      "type": "category_set",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "a_income",
+      "span_start": 453,
+      "span_end": 501,
+      "quoted_span": "The `income` label is binary: `<=50K` or `>50K`.",
+      "type": "category_set",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "a_phantom",
+      "span_start": 502,
+      "span_end": 562,
+      "quoted_span": "A `zip_code` column records the respondent's residence area.",
+      "type": "schema",
+      "gold_verdict": "violated",
+      "corruption_op": "phantom_column",
+      "note": "phantom column 'zip_code': sentence inserted, column absent from data"
+    },
+    {
+      "id": "a_hours",
+      "span_start": 563,
+      "span_end": 597,
+      "quoted_span": "Weekly working hours span 1 to 80.",
+      "type": "range",
+      "gold_verdict": "violated",
+      "corruption_op": "perturb_stat",
+      "note": "claimed statistic rewritten to 'Weekly working hours span 1 to 80.'; data unchanged"
+    },
+    {
+      "id": "a_nulls",
+      "span_start": 616,
+      "span_end": 707,
+      "quoted_span": "No cell in the file is empty; unknown values are encoded as the literal string `?` instead.",
+      "type": "null_rate",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "a_mean_age",
+      "span_start": 708,
+      "span_end": 738,
+      "quoted_span": "The average age is 38.6 years.",
+      "type": "aggregate_stat",
+      "gold_verdict": "holds"
+    }
+  ]
+}

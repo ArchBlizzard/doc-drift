@@ -1,0 +1,69 @@
+{
+  "case_id": "case_09",
+  "dataset": "winequality-red",
+  "seed": 209,
+  "gold_claims": [
+    {
+      "id": "w_prov",
+      "span_start": 135,
+      "span_end": 201,
+      "quoted_span": "assembled for quality-prediction research by Cortez and colleagues",
+      "type": "prose_unverifiable",
+      "gold_verdict": "unverifiable"
+    },
+    {
+      "id": "w_rows",
+      "span_start": 203,
+      "span_end": 245,
+      "quoted_span": "The dataset covers 1,599 red wine samples.",
+      "type": "row_count",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "w_quality",
+      "span_start": 333,
+      "span_end": 366,
+      "quoted_span": "Quality scores range from 3 to 7.",
+      "type": "range",
+      "gold_verdict": "violated",
+      "corruption_op": "perturb_stat",
+      "note": "claimed statistic rewritten to 'Quality scores range from 3 to 7.'; data unchanged"
+    },
+    {
+      "id": "w_ph",
+      "span_start": 367,
+      "span_end": 404,
+      "quoted_span": "pH values fall between 2.74 and 4.01.",
+      "type": "range",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "w_alcohol",
+      "span_start": 405,
+      "span_end": 447,
+      "quoted_span": "Alcohol content spans 8.4 to 14.9 percent.",
+      "type": "range",
+      "gold_verdict": "violated",
+      "corruption_op": "shift_range",
+      "note": "set 2 values of 'alcohol' to 19.5, outside the documented range"
+    },
+    {
+      "id": "w_nonulls",
+      "span_start": 466,
+      "span_end": 516,
+      "quoted_span": "There are no missing values anywhere in the table.",
+      "type": "null_rate",
+      "gold_verdict": "violated",
+      "corruption_op": "inject_nulls",
+      "note": "injected 6 nulls into 'alcohol'; card still claims none"
+    },
+    {
+      "id": "w_mean",
+      "span_start": 517,
+      "span_end": 547,
+      "quoted_span": "The mean quality score is 5.6.",
+      "type": "aggregate_stat",
+      "gold_verdict": "holds"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+case_id: case_10
+dataset: online_retail_sample
+seed: 210
+corruptions:
+  - op: perturb_stat
+    target: card
+    claim: r_rows
+    params: { new_span: "The extract contains 42,000 line items." }
+  - op: inject_nulls
+    target: data
+    claim: r_desc_nulls
+    params: { n: 30 }
+  - op: phantom_column
+    target: card
+    params:
+      claim_id: r_phantom
+      column: warehouse_id
+      sentence: "A `warehouse_id` column tracks the fulfilment site."
+      anchor: "Buyers come from 24 countries."
+kept_true_claims: 4
+kept_unverifiable_claims: 1

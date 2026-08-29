@@ -1,0 +1,77 @@
+{
+  "case_id": "case_11",
+  "dataset": "taxi_jan2023_50k",
+  "seed": 211,
+  "gold_claims": [
+    {
+      "id": "t_prov",
+      "span_start": 73,
+      "span_end": 153,
+      "quoted_span": "published by the NYC Taxi and Limousine Commission under its trip-record program",
+      "type": "prose_unverifiable",
+      "gold_verdict": "unverifiable"
+    },
+    {
+      "id": "t_rows",
+      "span_start": 155,
+      "span_end": 185,
+      "quoted_span": "This sample holds 52,500 trips",
+      "type": "row_count",
+      "gold_verdict": "violated",
+      "corruption_op": "perturb_stat",
+      "note": "claimed statistic rewritten to 'This sample holds 52,500 trips'; data unchanged"
+    },
+    {
+      "id": "t_pass",
+      "span_start": 234,
+      "span_end": 269,
+      "quoted_span": "Passenger counts range from 0 to 6.",
+      "type": "range",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "t_pay",
+      "span_start": 270,
+      "span_end": 306,
+      "quoted_span": "Payment types are coded 1 through 4.",
+      "type": "range",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "t_flag",
+      "span_start": 307,
+      "span_end": 360,
+      "quoted_span": "The `store_and_fwd_flag` column is either `N` or `Y`.",
+      "type": "category_set",
+      "gold_verdict": "violated",
+      "corruption_op": "add_category",
+      "note": "introduced undocumented category 'U' into 'store_and_fwd_flag' (6 rows)"
+    },
+    {
+      "id": "t_fare",
+      "span_start": 361,
+      "span_end": 394,
+      "quoted_span": "The average total fare is $29.17.",
+      "type": "aggregate_stat",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "t_dates",
+      "span_start": 409,
+      "span_end": 469,
+      "quoted_span": "Pickup timestamps run from 24 October 2022 to 1 January 2023",
+      "type": "temporal_coverage",
+      "gold_verdict": "holds"
+    },
+    {
+      "id": "t_min_total",
+      "span_start": 673,
+      "span_end": 722,
+      "quoted_span": "Refunded trips push the minimum total to -$99.00.",
+      "type": "aggregate_stat",
+      "gold_verdict": "violated",
+      "corruption_op": "perturb_stat",
+      "note": "claimed statistic rewritten to 'Refunded trips push the minimum total to -$99.00.'; data unchanged"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+case_id: case_09
+dataset: winequality-red
+seed: 209
+corruptions:
+  - op: inject_nulls
+    target: data
+    claim: w_nonulls
+    params: { column: alcohol, n: 6 }
+  - op: shift_range
+    target: data
+    claim: w_alcohol
+    params: { out_value: 19.5, n: 2 }
+  # falsifiable direction: real max quality is 8, so claiming a ceiling of 7 is false
+  - op: perturb_stat
+    target: card
+    claim: w_quality
+    params: { new_span: "Quality scores range from 3 to 7." }
+kept_true_claims: 2
+kept_unverifiable_claims: 1
