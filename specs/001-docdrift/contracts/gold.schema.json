@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "docdrift/gold.schema.json",
+  "title": "DocDrift gold labels for one eval case (emitted by make_cases.py by construction)",
+  "type": "object",
+  "required": ["case_id", "dataset", "seed", "gold_claims"],
+  "additionalProperties": false,
+  "properties": {
+    "case_id": { "type": "string", "pattern": "^case_[0-9]{2}$" },
+    "dataset": { "type": "string" },
+    "seed": { "type": "integer" },
+    "gold_claims": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["id", "span_start", "span_end", "quoted_span", "type", "gold_verdict"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "span_start": { "type": "integer", "minimum": 0 },
+          "span_end": { "type": "integer", "minimum": 1 },
+          "quoted_span": { "type": "string", "minLength": 1 },
+          "type": { "enum": ["schema", "row_count", "range", "null_rate", "category_set", "aggregate_stat", "temporal_coverage", "prose_unverifiable"] },
+          "gold_verdict": { "enum": ["holds", "violated", "unverifiable"] },
+          "corruption_op": { "type": "string", "description": "which of the 8 operators produced this label; absent for kept-true and unverifiable claims" },
+          "note": { "type": "string" }
+        }
+      }
+    }
+  }
+}
