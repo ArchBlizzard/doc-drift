@@ -2,10 +2,13 @@ case_id: case_04
 dataset: online_retail_sample
 seed: 104
 corruptions:
+  # falsifiable direction: data starts Dec 1, so claiming a Dec 5 start is
+  # unambiguously false; widening the window (the first draft's "1 to 24 Dec")
+  # produced a literally-true containment claim — see CHANGELOG v1 learning
   - op: stale_temporal
     target: card
     claim: r_dates
-    params: { new_span: "All invoices fall between 1 and 24 December 2010." }
+    params: { new_span: "All invoices fall between 5 and 21 December 2010." }
   - op: add_category
     target: data
     claim: r_countries

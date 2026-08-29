@@ -23,11 +23,11 @@
       "id": "r_dates",
       "span_start": 205,
       "span_end": 254,
-      "quoted_span": "All invoices fall between 1 and 24 December 2010.",
+      "quoted_span": "All invoices fall between 5 and 21 December 2010.",
       "type": "temporal_coverage",
       "gold_verdict": "violated",
       "corruption_op": "stale_temporal",
-      "note": "card coverage rewritten to 'All invoices fall between 1 and 24 December 2010.'; data unchanged"
+      "note": "card coverage rewritten to 'All invoices fall between 5 and 21 December 2010.'; data unchanged"
     },
     {
       "id": "r_qty",
