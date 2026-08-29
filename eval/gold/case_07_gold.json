@@ -37,7 +37,7 @@
       "type": "category_set",
       "gold_verdict": "violated",
       "corruption_op": "add_category",
-      "note": "introduced undocumented category 'Unknown' into 'sex' (5 rows)"
+      "note": "introduced undocumented value 'Unknown' into 'sex' (5 rows, all at index >= 0)"
     },
     {
       "id": "a_race",

@@ -45,7 +45,7 @@
       "type": "category_set",
       "gold_verdict": "violated",
       "corruption_op": "add_category",
-      "note": "introduced undocumented category 'U' into 'store_and_fwd_flag' (6 rows)"
+      "note": "introduced undocumented value 'U' into 'store_and_fwd_flag' (6 rows, all at index >= 0)"
     },
     {
       "id": "t_fare",
