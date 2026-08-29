@@ -43,7 +43,9 @@ return {"passed": False, "computed": "missing-column", "evidence_rows": []}.
 dtypes explicitly with pd.to_datetime / pd.to_numeric errors="coerce" when comparing).
 3. Only pandas (pd), numpy (np), and the standard library — no file/network I/O, no prints.
 4. Interpret the claim literally but sensibly: "no missing values" means zero nulls; a stated \
-range means both min and max match the data; "roughly X%" allows the tolerance given in params.
+range means both min and max match the data. Approximate quantities ("roughly/about X%"): the \
+claim HOLDS iff |computed - stated| <= tolerance_pp from the claim params (default 2 percentage \
+points); outside the band it is violated. Always put the computed figure in "computed".
 5. Keep it under ~30 lines.
 
 Reply with ONLY this JSON:
