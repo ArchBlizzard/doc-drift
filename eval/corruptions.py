@@ -124,11 +124,12 @@ def add_category(card: str, df: pd.DataFrame, claim: ManifestClaim,
     col = claim.params["column"]
     new_value = params["new_value"]
     n = int(params.get("n", 5))
+    min_row = int(params.get("min_row", 0))  # hard case: plant only deep in the file
     df = df.copy()
-    rows = rng.choice(len(df), size=n, replace=False)
+    rows = min_row + rng.choice(len(df) - min_row, size=n, replace=False)
     df[col] = df[col].astype("object")
     df.iloc[rows, df.columns.get_loc(col)] = new_value
-    note = f"introduced undocumented category {new_value!r} into {col!r} ({n} rows)"
+    note = f"introduced undocumented value {new_value!r} into {col!r} ({n} rows, all at index >= {min_row})"
     return OpResult(card, df, _violated_gold("add_category", claim, card, claim.quoted_span, note),
                     consumed=[claim.id])
 

@@ -68,4 +68,7 @@ def test_gold_floors(built, spec_path):
     assert len(verdicts) >= 6
     assert verdicts.count(Verdict.holds.value) >= spec.kept_true_claims
     assert verdicts.count(Verdict.unverifiable.value) >= spec.kept_unverifiable_claims
-    assert verdicts.count(Verdict.violated.value) >= 3  # PLAN §5: 3-6 discrepancies per case
+    # PLAN §5: 3-6 discrepancies per corruption-draw case; the hard case
+    # (FR-012) deliberately plants exactly 2 summary-invisible violations
+    floor = 2 if spec.case_id == "case_12" else 3
+    assert verdicts.count(Verdict.violated.value) >= floor

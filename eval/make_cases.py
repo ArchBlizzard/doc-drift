@@ -27,7 +27,7 @@ import yaml
 from corruptions import OP_REGISTRY, ManifestClaim, locate_span
 from docdrift.config import CASES_DIR, DATA_SRC, GOLD_DIR, SPECS_DIR
 from docdrift.schemas import CaseSpec, ClaimType, GoldClaim, GoldFile, Verdict
-from manifest import dataset_path, load_card, load_dataset, load_manifest
+from manifest import dataset_suffix, load_card, load_dataset, load_manifest
 
 
 def verify_checksums() -> None:
@@ -96,7 +96,7 @@ def build_case(spec: CaseSpec, cases_dir: Path = CASES_DIR, gold_dir: Path = GOL
     case_dir = cases_dir / spec.case_id
     case_dir.mkdir(parents=True, exist_ok=True)
     (case_dir / "datacard.md").write_text(card, encoding="utf-8", newline="\n")
-    if dataset_path(spec.dataset).suffix == ".parquet":
+    if dataset_suffix(spec.dataset) == ".parquet":
         df.to_parquet(case_dir / "data.parquet", index=False)
     else:
         df.to_csv(case_dir / "data.csv", index=False, lineterminator="\n")

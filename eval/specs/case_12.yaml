@@ -1,0 +1,18 @@
+# The hard case (FR-012, amended): both violations are structurally invisible
+# to head samples AND to full-column summary statistics — see synth_transactions.py.
+case_id: case_12
+dataset: synthetic_transactions_1m
+seed: 212
+corruptions:
+  - op: add_category
+    target: data
+    claim: s_pattern
+    params: { new_value: "XX-BAD-CODE", n: 173, min_row: 810000 }
+  - op: fuzzy_coarsen
+    target: card
+    claim: s_share
+    params:
+      new_span: "Roughly 10% of orders pair a coupon with the express channel."
+      true_value: "14.2%"
+kept_true_claims: 5
+kept_unverifiable_claims: 1

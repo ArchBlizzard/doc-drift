@@ -88,8 +88,8 @@ Deadline anchors (from root PLAN.md §8): Phase 0–2 ≈ H0–H7 · Phase 3–4
 - [ ] **T023 [P]** `eval/specs/case_07..11.yaml` only (second corruption draws over five datasets; runs the existing generator — no generator-code changes, keeping [P] with T024 file-disjoint).
   *Accept:* `make_cases` twice yields byte-identical case_07..11 + gold, validating against gold.schema.json.
   *Commit:* `feat: eval cases 07-11`
-- [ ] **T024 [P]** Hard case: `eval/synth_transactions.py` (1M-row generator, PCG64 seed 20260829; `REFUND_X` ×173 after row ~810k; coupon_id nulls 14.2% vs claimed "roughly 10%"), invoked by make_cases for case_12 + `eval/specs/case_12.yaml` + its card.
-  *Accept:* generates in ≤1 min; both violations verified by direct pandas in tests.
+- [ ] **T024 [P]** Hard case: `eval/synth_transactions.py` (1M-row generator, PCG64 seed 20260829), invoked by make_cases for case_12 + `eval/specs/case_12.yaml` + its card. Violations per amended FR-012: 173 pattern-breaking coupon codes only after row ~810k (below top-10 value counts in a ~2,000-code column) + a fuzzy cross-column share claim (truth 14.2% vs "roughly 10%") that per-column summaries cannot compute.
+  *Accept:* generates in ≤1 min; both violations verified by direct pandas in tests, including their invisibility to head samples and top-10 value counts.
   *Commit:* `feat: 1M-row hard case generator`
 - [ ] **T025** ⚡ Full v2 sweep — all 3 systems × 12 cases via run_all → `results/v2.md`; CHANGELOG v2 entry with measured vacuous rate + two concrete vacuous-check exhibits + v1→v2 F1 delta.
   *Accept:* `results/v2.md` + per_claim.csv committed for all three systems; vacuous rate recorded in the entry.

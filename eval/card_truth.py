@@ -59,6 +59,13 @@ def check_claim(df: pd.DataFrame, claim: ManifestClaim) -> tuple[bool, str]:
         raise ValueError(f"unknown null_rate mode {mode!r}")
 
     if t is ClaimType.aggregate_stat:
+        if p.get("stat") == "pair_share":
+            share = 100.0 * float((df[p["column"]].notna()
+                                   & (df[p["condition_column"]] == p["condition_value"])).mean())
+            tol = float(p.get("tol_pp", p.get("tolerance_pp", 2)))
+            ok = abs(share - float(p["value"])) <= tol
+            return ok, (f"share({p['column']} & {p['condition_column']}=="
+                        f"{p['condition_value']})={share:.2f}% claimed ~{p['value']}%±{tol}")
         s = df[p["column"]]
         actual = float(getattr(s, p["stat"])())
         dec = int(p["decimals"])
@@ -77,6 +84,15 @@ def check_claim(df: pd.DataFrame, claim: ManifestClaim) -> tuple[bool, str]:
 
     if t is ClaimType.schema:
         col = p["column"]
+        if "regex" in p:
+            import re
+            values = df[col].dropna().astype(str)
+            bad = int((~values.str.fullmatch(p["regex"])).sum())
+            return bad == 0, f"{bad} non-null values of {col!r} violate pattern {p['regex']!r}"
+        if p.get("sorted") or "sorted_by" in p:
+            sort_col = p.get("sorted_by", col)
+            ok = bool(pd.Series(df[sort_col]).is_monotonic_increasing)
+            return ok, f"{sort_col!r} monotonic ascending={ok}"
         return col in df.columns, f"column {col!r} present={col in df.columns}"
 
     raise ValueError(f"no checker for claim type {t}")

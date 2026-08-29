@@ -1,0 +1,46 @@
+claims:
+  - id: s_rows
+    type: row_count
+    quoted_span: "The file holds exactly 1,000,000 orders."
+    params: { expected: 1000000 }
+    base_verdict: holds
+  - id: s_sorted
+    type: schema
+    quoted_span: "Rows are ordered chronologically by `ts`."
+    params: { column: ts, sorted: true, sorted_by: ts }
+    base_verdict: holds
+  - id: s_ts
+    type: temporal_coverage
+    quoted_span: "Orders cover 1 January through 31 December 2024"
+    params: { column: ts, min_date: "2024-01-01", max_date: "2024-12-31" }
+    base_verdict: holds
+  - id: s_amount
+    type: range
+    quoted_span: "Order values span 5.00 to 500.00 dollars."
+    params: { column: amount, min: 5.0, max: 500.0 }
+    base_verdict: holds
+  - id: s_status
+    type: category_set
+    quoted_span: "The `status` column takes exactly four values: PLACED, SHIPPED, DELIVERED and RETURNED."
+    params: { column: status, values: [PLACED, SHIPPED, DELIVERED, RETURNED] }
+    base_verdict: holds
+  - id: s_channel
+    type: category_set
+    quoted_span: "Orders arrive via three channels: web, app and express."
+    params: { column: channel, values: [web, app, express] }
+    base_verdict: holds
+  - id: s_pattern
+    type: schema
+    quoted_span: "Every non-empty `coupon_id` matches the pattern CP-#####."
+    params: { column: coupon_id, regex: "CP-\\d{5}" }
+    base_verdict: holds
+  - id: s_share
+    type: aggregate_stat
+    quoted_span: "Roughly 14% of orders pair a coupon with the express channel."
+    params: { stat: pair_share, column: coupon_id, condition_column: channel, condition_value: express, value: 14, tol_pp: 2 }
+    base_verdict: holds
+  - id: s_prov
+    type: prose_unverifiable
+    quoted_span: "assembled by the fulfilment engineering team from the order event stream"
+    params: {}
+    base_verdict: unverifiable
