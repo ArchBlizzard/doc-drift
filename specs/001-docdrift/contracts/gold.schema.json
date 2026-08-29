@@ -11,7 +11,7 @@
     "seed": { "type": "integer" },
     "gold_claims": {
       "type": "array",
-      "minItems": 4,
+      "minItems": 6,
       "items": {
         "type": "object",
         "required": ["id", "span_start", "span_end", "quoted_span", "type", "gold_verdict"],

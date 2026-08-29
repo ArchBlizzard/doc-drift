@@ -5,7 +5,8 @@ Every command below is the stable interface `quickstart.md`/`REPRODUCE.md` docum
 ## Environment contract
 
 - **Auth (exactly one needed, checked in this order):** `ANTHROPIC_API_KEY` env var → `CLAUDE_CODE_OAUTH_TOKEN` env var → stored Claude Code subscription login. No other network access is performed by any command (Constitution II).
-- **Python:** 3.12; install via `uv sync` (lockfile committed) or `pip install -e .`.
+- **Python:** 3.12; install via `uv sync` (lockfile committed) or `pip install -e ".[dev]"` (dev extras carry pytest for the self-tests).
+- **Claude Code CLI** installed (`npm install -g @anthropic-ai/claude-code`; version pinned in REPRODUCE.md) — required by `claude-agent-sdk` under every auth option.
 - All commands run from the repo root; all paths below are repo-relative.
 
 ## Commands
@@ -23,13 +24,14 @@ One no-tools model call (two with `--plus` variant, run separately).
 - **Outputs:** `runs/<case_id>/baseline[_plus]/verdicts.json` (schema: `verdicts.schema.json`) + `prompt.txt` + raw model reply (the baseline trajectory).
 - **Model:** alias `sonnet` (overridable `--model`).
 
-### `python run_agent.py <case_id> [--resume] [--model sonnet] [--out DIR]`
+### `python run_agent.py <case_id> [--fresh] [--model sonnet] [--out DIR]`
 Full DocDrift pipeline: extract → per-claim (synthesize → mutation-gate → execute) → verdicts → report.
-- **Outputs:** `runs/<case_id>/agent/{verdicts.json, ledger.jsonl, audit.md}`.
-- `--resume`: skip claims settled in an existing ledger with matching fingerprints (FR-008).
+- **Outputs:** `runs/<case_id>/agent/{verdicts.json, ledger.jsonl, messages.jsonl, audit.md}`.
+- **Resume is the default** (FR-008): re-runs skip claims settled in an existing ledger with matching data+card fingerprints. `--fresh` discards the ledger for a deliberate full re-run.
 - **Guarantees:** every holds/violated verdict has a gate-passed executed check in the ledger (FR-004/005); process exits 0 even when claims are violated — verdicts are data, not errors.
 
 ### `python eval/run_all.py [--systems baseline,baseline_plus,agent] [--cases case_01,...]`
+(`--systems` also accepts `baseline_stratified` — the removed-experiment ablation, scored by the same scorer; outputs under `runs/<case>/baseline_stratified/`.)
 Runs the selected systems over the selected cases (default: all three systems, all 12 cases), then invokes scoring.
 - **Outputs:** everything under `runs/`, plus `results/results.md` and `results/per_claim.csv`.
 - **Resumable:** re-invocation skips completed (case, system) pairs unless `--force`.

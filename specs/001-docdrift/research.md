@@ -50,7 +50,7 @@ Decisions recorded in spec-kit format: **Decision / Rationale / Alternatives con
 
 **Rationale:** Preempts the "strawman baseline" objection — baseline-plus is the best honest single-prompt attempt that fits context. Both share the agent's CLI shape, output schema, and scorer (spec FR-009).
 
-**Alternatives considered:** Manual-process baseline (human with pandas — rejected: not reproducible by judges); tool-equipped single agent as baseline (rejected as *primary* since it blurs the comparison, but the v0 changelog entry effectively records it).
+**Alternatives considered:** Manual-process baseline (human with pandas — rejected: not reproducible by judges); tool-equipped single agent as baseline (rejected as *primary* since it blurs the comparison; the changelog's v0 checkpoint is the harness + both baselines, per SR-001).
 
 ## R7 — Determinism under subscription auth
 
