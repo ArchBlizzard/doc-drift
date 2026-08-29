@@ -1,0 +1,9 @@
+# Byte-exact checkouts everywhere, on every platform.
+#
+# The eval depends on exact bytes: data_src/ files are SHA256-verified before
+# case generation, and gold labels are CHARACTER SPANS into the card files —
+# any line-ending normalization would break checksums and shift offsets.
+# Caught by the T035 clean-clone rehearsal: git's autocrlf rewrote
+# data_src/penguins.csv to CRLF on a fresh Windows clone and failed the
+# checksum gate. No text file in this repo wants conversion.
+* -text
