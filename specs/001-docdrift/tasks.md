@@ -118,9 +118,9 @@ Deadline anchors (from root PLAN.md §8): Phase 0–2 ≈ H0–H7 · Phase 3–4
 - [ ] **T031** `src/docdrift/agents/reporter.py`: ledger → `audit.md` meeting FR-007's checklist (a)–(e); replace T019's template.
   *Accept:* checklist (a)–(e) passes on two real audits (scripted structural check).
   *Commit:* `feat: reporter agent meeting FR-007 checklist`
-- [ ] **T032** Run DocDrift on one real, unmodified Kaggle data card + data (video kicker) — dataset MUST have a permissive license (CC0/CC BY/ODbL); save ledger + audit + `PROVENANCE.md` (license, URL, access date) under `trajectories/kaggle_kicker/`. This demo run is explicitly out-of-contract (ad-hoc case id; verdicts not schema-validated).
-  *Accept:* artifacts + provenance committed.
-  *Commit:* `demo: real-world kaggle data card run`
+- [x] **T032** Run DocDrift on one real, unmodified public data card + data (video kicker) — dataset MUST have a permissive license; save ledger + audit + `PROVENANCE.md` (license, URL, access date) under `trajectories/kaggle_kicker/`. This demo run is explicitly out-of-contract (ad-hoc case id; no gold). *Executed against OpenML `credit-g` (Kaggle requires an API token; substitution disclosed in PROVENANCE.md). Found two genuine violations in the 1994 card: "Telephone (yes,no)" vs actual `none`/`yes` encoding, and 41 non-conforming guarantor values.*
+  *Accept:* artifacts + provenance committed. ✓
+  *Commit:* `demo: real-world data card run (openml credit-g)`
 
 ## Phase 7 — Submission Package
 

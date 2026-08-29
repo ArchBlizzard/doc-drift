@@ -1,0 +1,356 @@
+{
+  "case_id": "demo_credit_g",
+  "system": "agent",
+  "model_id": "claude-sonnet-5",
+  "claims": [
+    {
+      "quoted_span": "Dr. Hans Hofmann",
+      "span_start": 12,
+      "span_end": 28,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "[UCI](https://archive.ics.uci.edu/ml/datasets/statlog+(german+credit+data)) - 1994",
+      "span_start": 43,
+      "span_end": 125,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "[UCI](https://archive.ics.uci.edu/ml/citation_policy.html)",
+      "span_start": 147,
+      "span_end": 205,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "This dataset classifies people described by a set of attributes as good or bad credit risks.",
+      "span_start": 235,
+      "span_end": 327,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "good or bad credit risks",
+      "span_start": 302,
+      "span_end": 326,
+      "verdict": "holds",
+      "claimed": "good or bad credit risks",
+      "computed": "unique values in 'class': ['bad', 'good']"
+    },
+    {
+      "quoted_span": "This dataset comes with a cost matrix:",
+      "span_start": 329,
+      "span_end": 367,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "It is worse to class a customer as good when they are bad (5), than it is to class a customer as bad when they are good (1).",
+      "span_start": 446,
+      "span_end": 570,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "Status of existing checking account, in Deutsche Mark.",
+      "span_start": 606,
+      "span_end": 660,
+      "verdict": "holds",
+      "claimed": "Status of existing checking account, in Deutsche Mark.",
+      "computed": "categories=['0<=X<200', '<0', '>=200', 'no checking'], unexpected=[], nulls=0"
+    },
+    {
+      "quoted_span": "Duration in months",
+      "span_start": 666,
+      "span_end": 684,
+      "verdict": "holds",
+      "claimed": "Duration in months",
+      "computed": "non-numeric: 0, non-integer: 0, negative: 0, min=4, max=72"
+    },
+    {
+      "quoted_span": "Credit history (credits taken, paid back duly, delays, critical accounts)",
+      "span_start": 690,
+      "span_end": 763,
+      "verdict": "holds",
+      "claimed": "Credit history (credits taken, paid back duly, delays, critical accounts)",
+      "computed": "rows=1000, nulls=0, unique_categories=5, categories=[\"'all paid'\", \"'critical/other existing credit'\", \"'delayed previously'\", \"'existing paid'\", \"'no credits/all paid'\"]"
+    },
+    {
+      "quoted_span": "Purpose of the credit (car, television,...)",
+      "span_start": 769,
+      "span_end": 812,
+      "verdict": "holds",
+      "claimed": "Purpose of the credit (car, television,...)",
+      "computed": "1000/1000 non-null; categories=[\"'domestic appliance'\", \"'new car'\", \"'used car'\", 'business', 'education', 'furniture/equipment', 'other', 'radio/tv', 'repairs', 'retraining']"
+    },
+    {
+      "quoted_span": "Credit amount",
+      "span_start": 818,
+      "span_end": 831,
+      "verdict": "holds",
+      "claimed": "Credit amount",
+      "computed": "dtype=int64, non_numeric_count=0, min=250, max=18424"
+    },
+    {
+      "quoted_span": "Status of savings account/bonds, in Deutsche Mark.",
+      "span_start": 837,
+      "span_end": 887,
+      "verdict": "holds",
+      "claimed": "Status of savings account/bonds, in Deutsche Mark.",
+      "computed": "column 'savings_status' present, 1000/1000 non-null, categories=[\"'100<=X<500'\", \"'500<=X<1000'\", \"'<100'\", \"'>=1000'\", \"'no known savings'\"]"
+    },
+    {
+      "quoted_span": "Present employment, in number of years.",
+      "span_start": 893,
+      "span_end": 932,
+      "verdict": "holds",
+      "claimed": "Present employment, in number of years.",
+      "computed": "values=1<=X<4, 4<=X<7, <1, >=7, unemployed"
+    },
+    {
+      "quoted_span": "Installment rate in percentage of disposable income",
+      "span_start": 938,
+      "span_end": 989,
+      "verdict": "holds",
+      "claimed": "Installment rate in percentage of disposable income",
+      "computed": "dtype=int64, rows=1000, non-null=1000, numeric-parseable=1000, min=1, max=4"
+    },
+    {
+      "quoted_span": "Personal status (married, single,...) and sex",
+      "span_start": 995,
+      "span_end": 1040,
+      "verdict": "holds",
+      "claimed": "Personal status (married, single,...) and sex",
+      "computed": "1000/1000 rows encode both sex and marital status; nulls=0; sample_values=[\"'male single'\", \"'female div/dep/mar'\", \"'male div/sep'\", \"'male mar/wid'\"]"
+    },
+    {
+      "quoted_span": "Other debtors / guarantors",
+      "span_start": 1047,
+      "span_end": 1073,
+      "verdict": "violated",
+      "claimed": "Other debtors / guarantors",
+      "computed": "unique values=[\"'co applicant'\", 'guarantor', 'none'], nulls=0, unexpected=41",
+      "evidence_rows": [
+        {
+          "other_parties": "'co applicant'"
+        },
+        {
+          "other_parties": "'co applicant'"
+        },
+        {
+          "other_parties": "'co applicant'"
+        },
+        {
+          "other_parties": "'co applicant'"
+        },
+        {
+          "other_parties": "'co applicant'"
+        }
+      ]
+    },
+    {
+      "quoted_span": "Present residence since X years",
+      "span_start": 1080,
+      "span_end": 1111,
+      "verdict": "holds",
+      "claimed": "Present residence since X years",
+      "computed": "residence_since numeric range [1, 4], non-numeric=0, non-positive=0, nulls=0"
+    },
+    {
+      "quoted_span": "Property (e.g. real estate)",
+      "span_start": 1118,
+      "span_end": 1145,
+      "verdict": "holds",
+      "claimed": "Property (e.g. real estate)",
+      "computed": "dtype=object, non_null=1000/1000, unique_values=['car', 'life insurance', 'no known property', 'real estate']"
+    },
+    {
+      "quoted_span": "Age in years",
+      "span_start": 1152,
+      "span_end": 1164,
+      "verdict": "holds",
+      "claimed": "Age in years",
+      "computed": "non-numeric: 0, non-integer: 0, nulls: 0, range: [19, 75]"
+    },
+    {
+      "quoted_span": "Other installment plans (banks, stores)",
+      "span_start": 1171,
+      "span_end": 1210,
+      "verdict": "holds",
+      "claimed": "Other installment plans (banks, stores)",
+      "computed": "unique values: ['bank', 'none', 'stores']"
+    },
+    {
+      "quoted_span": "Housing (rent, own,...)",
+      "span_start": 1217,
+      "span_end": 1240,
+      "verdict": "holds",
+      "claimed": "Housing (rent, own,...)",
+      "computed": "housing values: [\"'for free'\", 'own', 'rent']"
+    },
+    {
+      "quoted_span": "Number of existing credits at this bank",
+      "span_start": 1247,
+      "span_end": 1286,
+      "verdict": "holds",
+      "claimed": "Number of existing credits at this bank",
+      "computed": "min=1, max=4, unique_count=4, all_nonneg_ints=True"
+    },
+    {
+      "quoted_span": "Job",
+      "span_start": 1293,
+      "span_end": 1296,
+      "verdict": "holds",
+      "claimed": "Job",
+      "computed": "dtype=object, nulls=0, n_unique=4, values=[\"'high qualif/self emp/mgmt'\", \"'unemp/unskilled non res'\", \"'unskilled resident'\", 'skilled']"
+    },
+    {
+      "quoted_span": "Number of people being liable to provide maintenance for",
+      "span_start": 1303,
+      "span_end": 1359,
+      "verdict": "holds",
+      "claimed": "Number of people being liable to provide maintenance for",
+      "computed": "n_total=1000, nulls=0, non_integer_or_negative=0, min=1, max=2"
+    },
+    {
+      "quoted_span": "Telephone (yes,no)",
+      "span_start": 1366,
+      "span_end": 1384,
+      "verdict": "violated",
+      "claimed": "Telephone (yes,no)",
+      "computed": "values found: none, yes",
+      "evidence_rows": [
+        {
+          "checking_status": "'0<=X<200'",
+          "duration": "48",
+          "credit_history": "'existing paid'",
+          "purpose": "radio/tv",
+          "credit_amount": "5951",
+          "savings_status": "'<100'",
+          "employment": "'1<=X<4'",
+          "installment_commitment": "2",
+          "personal_status": "'female div/dep/mar'",
+          "other_parties": "none",
+          "residence_since": "2",
+          "property_magnitude": "'real estate'",
+          "age": "22",
+          "other_payment_plans": "none",
+          "housing": "own",
+          "existing_credits": "1",
+          "job": "skilled",
+          "num_dependents": "1",
+          "own_telephone": "none",
+          "foreign_worker": "yes",
+          "class": "bad"
+        },
+        {
+          "checking_status": "'no checking'",
+          "duration": "12",
+          "credit_history": "'critical/other existing credit'",
+          "purpose": "education",
+          "credit_amount": "2096",
+          "savings_status": "'<100'",
+          "employment": "'4<=X<7'",
+          "installment_commitment": "2",
+          "personal_status": "'male single'",
+          "other_parties": "none",
+          "residence_since": "3",
+          "property_magnitude": "'real estate'",
+          "age": "49",
+          "other_payment_plans": "none",
+          "housing": "own",
+          "existing_credits": "1",
+          "job": "'unskilled resident'",
+          "num_dependents": "2",
+          "own_telephone": "none",
+          "foreign_worker": "yes",
+          "class": "good"
+        },
+        {
+          "checking_status": "'<0'",
+          "duration": "42",
+          "credit_history": "'existing paid'",
+          "purpose": "furniture/equipment",
+          "credit_amount": "7882",
+          "savings_status": "'<100'",
+          "employment": "'4<=X<7'",
+          "installment_commitment": "2",
+          "personal_status": "'male single'",
+          "other_parties": "guarantor",
+          "residence_since": "4",
+          "property_magnitude": "'life insurance'",
+          "age": "45",
+          "other_payment_plans": "none",
+          "housing": "'for free'",
+          "existing_credits": "1",
+          "job": "skilled",
+          "num_dependents": "2",
+          "own_telephone": "none",
+          "foreign_worker": "yes",
+          "class": "good"
+        },
+        {
+          "checking_status": "'<0'",
+          "duration": "24",
+          "credit_history": "'delayed previously'",
+          "purpose": "'new car'",
+          "credit_amount": "4870",
+          "savings_status": "'<100'",
+          "employment": "'1<=X<4'",
+          "installment_commitment": "3",
+          "personal_status": "'male single'",
+          "other_parties": "none",
+          "residence_since": "4",
+          "property_magnitude": "'no known property'",
+          "age": "53",
+          "other_payment_plans": "none",
+          "housing": "'for free'",
+          "existing_credits": "2",
+          "job": "skilled",
+          "num_dependents": "2",
+          "own_telephone": "none",
+          "foreign_worker": "yes",
+          "class": "bad"
+        },
+        {
+          "checking_status": "'no checking'",
+          "duration": "24",
+          "credit_history": "'existing paid'",
+          "purpose": "furniture/equipment",
+          "credit_amount": "2835",
+          "savings_status": "'500<=X<1000'",
+          "employment": "'>=7'",
+          "installment_commitment": "3",
+          "personal_status": "'male single'",
+          "other_parties": "none",
+          "residence_since": "4",
+          "property_magnitude": "'life insurance'",
+          "age": "53",
+          "other_payment_plans": "none",
+          "housing": "own",
+          "existing_credits": "1",
+          "job": "skilled",
+          "num_dependents": "1",
+          "own_telephone": "none",
+          "foreign_worker": "yes",
+          "class": "good"
+        }
+      ]
+    },
+    {
+      "quoted_span": "Foreign worker (yes,no)",
+      "span_start": 1391,
+      "span_end": 1414,
+      "verdict": "holds",
+      "claimed": "Foreign worker (yes,no)",
+      "computed": "unique values: ['no', 'yes']"
+    }
+  ],
+  "usage": {
+    "input_tokens": 2,
+    "output_tokens": 8917
+  },
+  "wall_s": 170.69
+}
