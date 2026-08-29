@@ -12,7 +12,7 @@
 | Language | Python 3.12 |
 | Model access | `claude-agent-sdk` (pinned in lockfile). Auth: `ANTHROPIC_API_KEY` → `CLAUDE_CODE_OAUTH_TOKEN` → stored Claude Code subscription login, unbranched (research R2). Fallback if SDK misbehaves on Windows: headless `claude -p --output-format json` subprocess, same auth. |
 | Models | alias `sonnet` (extractor, synthesizer, reporter, baselines); alias `haiku` (synthesizer ablation). Resolved IDs recorded per run. |
-| Key libraries | pandas 2.2.x, pyarrow ≥17, numpy (seeded generation), pydantic 2.x, rapidfuzz (fallback alignment only), rich (live trajectory display), pytest, PyYAML |
+| Key libraries | pandas ≥2.2 (lockfile-pinned), pyarrow ≥17, numpy (seeded generation), pydantic 2.x, rapidfuzz (fallback alignment only), rich (live trajectory display), pytest, PyYAML |
 | Packaging | `pyproject.toml` + `uv` lockfile; pip fallback documented |
 | Platform | Windows 11 primary (builder); commands documented for PowerShell and bash |
 | Performance goal | full 12-case agent sweep ≤45 min wall clock (SC-003); per-check execution ≤60s timeout |
