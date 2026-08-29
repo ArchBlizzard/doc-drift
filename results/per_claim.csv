@@ -1,0 +1,145 @@
+case,system,gold_id,gold,predicted,via,computed
+case_01,agent,a_rows,violated,violated,span,row_count=32591
+case_01,agent,a_prov,unverifiable,unverifiable,span,
+case_01,agent,a_age,holds,holds,span,"min=17, max=90"
+case_01,agent,a_sex,holds,holds,span,"unique values: ['Female', 'Male']"
+case_01,agent,a_race,violated,violated,span,"6 categories: ['Amer-Indian-Eskimo', 'Asian-Pac-Islander', 'Black', 'Other', 'Pacific-Islander-Other', 'White']"
+case_01,agent,a_income,holds,holds,span,"unique_values=['<=50K', '>50K']"
+case_01,agent,a_hours,holds,holds,span,"min=1, max=99"
+case_01,agent,a_nulls,violated,violated,span,"sentinel('?') count=4264 across cols={'workclass': 1837, 'occupation': 1843, 'native_country': 584}; actual_nulls=17"
+case_01,agent,a_mean_age,violated,violated,span,mean age = 38.5830
+case_01,baseline,a_rows,violated,unverifiable,span,
+case_01,baseline,a_prov,unverifiable,unverifiable,span,
+case_01,baseline,a_age,holds,unverifiable,span,
+case_01,baseline,a_sex,holds,holds,span,"Only Male and Female observed across all 50 sampled rows, matching object dtype"
+case_01,baseline,a_race,violated,unverifiable,span,
+case_01,baseline,a_income,holds,holds,span,Only '<=50K' and '>50K' observed in the sample's income column
+case_01,baseline,a_hours,holds,unverifiable,span,
+case_01,baseline,a_nulls,violated,holds,span,"No empty/null cells observed in the 50-row sample; '?' appears in workclass, occupation, and native_country for missing entries"
+case_01,baseline,a_mean_age,violated,violated,span,"Sample mean age ≈ 38.28 years (from the 50 rows shown), notably lower than claimed"
+case_01,baseline_plus,a_rows,violated,violated,span,"32,591 records (row count per summary statistics)"
+case_01,baseline_plus,a_prov,unverifiable,unverifiable,span,
+case_01,baseline_plus,a_age,holds,holds,span,"min age 17, max age 90"
+case_01,baseline_plus,a_sex,holds,holds,span,"sex unique=2, values Male/Female"
+case_01,baseline_plus,a_race,violated,violated,span,"race unique=6 (White, Black, Asian-Pac-Islander, Amer-Indian-Eskimo, Other, Pacific-Islander-Other)"
+case_01,baseline_plus,a_income,holds,holds,span,"income unique=2, values <=50K and >50K"
+case_01,baseline_plus,a_hours,holds,holds,span,"min hours_per_week 1, max 99"
+case_01,baseline_plus,a_nulls,violated,holds,span,"workclass, occupation, and native_country columns contain a '?' category (1837, 1843, and 584 occurrences respectively)"
+case_01,baseline_plus,a_mean_age,violated,violated,span,mean age = 38.58 years
+case_02,agent,p_prov,unverifiable,unverifiable,span,
+case_02,agent,p_rows,holds,holds,span,row_count=344
+case_02,agent,p_species,holds,holds,span,"species values found: ['Adelie', 'Chinstrap', 'Gentoo']"
+case_02,agent,p_islands,holds,holds,span,"islands=Biscoe, Dream, Torgersen"
+case_02,agent,p_year,violated,violated,span,year range observed: 2007-2009 (expected 2007-2011)
+case_02,agent,p_mass,violated,violated,span,"min=2700.0, max=7150.0"
+case_02,agent,p_bill,holds,holds,span,mean=43.9219 mm (target 43.9 mm)
+case_02,agent,p_phantom,violated,violated,span,missing-column
+case_02,agent,p_sex_nulls,violated,violated,span,3.20% missing (11/344)
+case_02,baseline,p_prov,unverifiable,unverifiable,span,
+case_02,baseline,p_rows,holds,unverifiable,span,
+case_02,baseline,p_species,holds,unverifiable,span,
+case_02,baseline,p_islands,holds,holds,span,"The island column contains exactly Biscoe, Dream and Torgersen in the observed rows (Torgersen rows 1-20, Biscoe rows 21-30, Dream rows 31-50), matching the claim."
+case_02,baseline,p_year,violated,unverifiable,span,
+case_02,baseline,p_mass,violated,unverifiable,span,
+case_02,baseline,p_bill,holds,unverifiable,span,
+case_02,baseline,p_phantom,violated,violated,span,"The actual columns are species, island, bill_length_mm, bill_depth_mm, flipper_length_mm, body_mass_g, sex, year — there is no tag_id column."
+case_02,baseline,p_sex_nulls,violated,unverifiable,span,
+case_02,baseline_plus,p_prov,unverifiable,unverifiable,span,
+case_02,baseline_plus,p_rows,holds,holds,span,344 rows
+case_02,baseline_plus,p_species,holds,holds,span,"unique species values: Adelie, Gentoo, Chinstrap"
+case_02,baseline_plus,p_islands,holds,holds,span,"unique island values: Biscoe, Dream, Torgersen"
+case_02,baseline_plus,p_year,violated,violated,span,year ranges from 2007 to 2009 only
+case_02,baseline_plus,p_mass,violated,violated,span,body_mass_g ranges from 2700 to 7150 grams
+case_02,baseline_plus,p_bill,holds,holds,span,mean bill_length_mm = 43.92
+case_02,baseline_plus,p_phantom,violated,violated,span,"no tag_id column present in dataset (columns: species, island, bill_length_mm, bill_depth_mm, flipper_length_mm, body_mass_g, sex, year)"
+case_02,baseline_plus,p_sex_nulls,violated,violated,span,"sex has 333/344 non-null, 11 missing = ~3.2% missing"
+case_03,agent,w_prov,unverifiable,unverifiable,fuzzy,
+case_03,agent,w_rows,violated,violated,span,row_count=1611
+case_03,agent,w_quality,holds,holds,span,"min=3, max=8"
+case_03,agent,w_ph,violated,violated,span,"min=2.74, max=5.2"
+case_03,agent,w_alcohol,holds,holds,span,"min=8.4, max=14.9"
+case_03,agent,w_nonulls,holds,holds,span,0 missing values out of 19332 cells
+case_03,agent,w_mean,violated,violated,span,mean quality = 5.6344
+case_03,baseline,w_prov,unverifiable,unverifiable,fuzzy,
+case_03,baseline,w_rows,violated,holds,span,"1,599 rows (matches known UCI Red Wine Quality dataset size)"
+case_03,baseline,w_quality,holds,holds,span,"quality values in data range from 3 to 8, consistent with int64 dtype and sample values (4-7 observed)"
+case_03,baseline,w_ph,violated,holds,span,"pH values fall within this range (sample values e.g. 3.11-3.9 consistent, known dataset min 2.74/max 4.01)"
+case_03,baseline,w_alcohol,holds,holds,span,"alcohol values fall within this range (sample values 9.0-13.1 consistent, known dataset min 8.4/max 14.9)"
+case_03,baseline,w_nonulls,holds,holds,span,"all columns fully populated with numeric dtypes (float64/int64), no nulls observed in sample or known dataset"
+case_03,baseline,w_mean,violated,violated,span,"actual mean quality is approximately 5.64 (sample of first 50 rows already averages 5.3, and the known full-dataset mean is ~5.636)"
+case_03,baseline_plus,w_prov,unverifiable,unverifiable,fuzzy,
+case_03,baseline_plus,w_rows,violated,violated,span,"1,611 rows in the data"
+case_03,baseline_plus,w_quality,holds,holds,span,"min=3, max=8"
+case_03,baseline_plus,w_ph,violated,violated,span,"min=2.74, max=5.2"
+case_03,baseline_plus,w_alcohol,holds,holds,span,"min=8.4, max=14.9"
+case_03,baseline_plus,w_nonulls,holds,holds,span,"all columns report count=1611, equal to total row count, with no nulls indicated"
+case_03,baseline_plus,w_mean,violated,violated,span,mean quality ≈ 5.634
+case_04,agent,r_prov,unverifiable,unverifiable,span,
+case_04,agent,r_rows,holds,holds,span,row_count=40000
+case_04,agent,r_dates,violated,violated,span,"min=2010-12-01 08:26:00, max=2010-12-21 13:06:00, out_of_range=7419, unparsable=0"
+case_04,agent,r_qty,violated,violated,fuzzy,"min=-9360, max=3500"
+case_04,agent,r_countries,violated,violated,span,distinct_count=25
+case_04,agent,r_cust_nulls,violated,violated,span,34.97% missing (13989/40000 rows)
+case_04,agent,r_desc_nulls,holds,holds,span,123 rows with missing/blank description
+case_04,baseline,r_prov,unverifiable,unverifiable,span,
+case_04,baseline,r_rows,holds,unverifiable,span,
+case_04,baseline,r_dates,violated,violated,span,"First 50 rows include invoices (e.g. 536365-536373) dated 2010-12-01, which falls before 5 December 2010"
+case_04,baseline,r_qty,violated,unverifiable,span,
+case_04,baseline,r_countries,violated,unverifiable,span,
+case_04,baseline,r_cust_nulls,violated,unverifiable,span,
+case_04,baseline,r_desc_nulls,holds,unverifiable,span,
+case_04,baseline_plus,r_prov,unverifiable,unverifiable,span,
+case_04,baseline_plus,r_rows,holds,holds,span,40000 rows (count for invoice/quantity/price/country columns = 40000)
+case_04,baseline_plus,r_dates,violated,violated,span,"invoicedate values include 2010-12-01 and 2010-12-03 (seen in first rows and top value counts), before the claimed start of 5 December"
+case_04,baseline_plus,r_qty,violated,violated,span,"quantity min = -9360 (matches), but max = 3500, not 2880"
+case_04,baseline_plus,r_countries,violated,violated,span,25 unique countries (country unique count = 25)
+case_04,baseline_plus,r_cust_nulls,violated,violated,span,13989/40000 = 34.97% of rows missing customer_id
+case_04,baseline_plus,r_desc_nulls,holds,holds,span,40000 - 39877 = 123 rows missing description
+case_05,agent,t_prov,unverifiable,unverifiable,span,
+case_05,agent,t_rows,holds,holds,fuzzy,row_count=50000
+case_05,agent,t_pass,violated,violated,span,"min=0.0, max=9.0"
+case_05,agent,t_pay,holds,holds,span,"min=1, max=4, out_of_range_or_invalid=0"
+case_05,agent,t_flag,holds,holds,span,"unique values: ['N', 'Y']"
+case_05,agent,t_phantom,violated,violated,span,missing-column
+case_05,agent,t_fare,violated,violated,span,mean(total_amount)=29.1742
+case_05,agent,t_dates,violated,violated,span,"min=2022-10-24 17:37:47, max=2023-01-01 23:19:19, out_of_range_count=33"
+case_05,agent,t_min_total,holds,holds,span,min(total_amount) = -351.0
+case_05,baseline,t_prov,unverifiable,unverifiable,span,
+case_05,baseline,t_rows,holds,unverifiable,fuzzy,
+case_05,baseline,t_pass,violated,holds,span,Sample passenger_count values observed range 0.0–5.0 (float64); no values outside 0–6 observed
+case_05,baseline,t_pay,holds,holds,span,"Sample payment_type values observed are 1, 2, and 4 (int64), all within 1–4"
+case_05,baseline,t_flag,holds,holds,span,"All 50 sampled rows show store_and_fwd_flag = 'N' (object dtype); no values outside {N, Y} observed"
+case_05,baseline,t_phantom,violated,violated,span,"No driver_id column exists; schema columns are VendorID, tpep_pickup_datetime, tpep_dropoff_datetime, passenger_count, trip_distance, RatecodeID, store_and_fwd_flag, PULocationID, DOLocationID, payment_type, fare_amount, extra, mta_tax, tip_amount, tolls_amount, improvement_surcharge, total_amount, congestion_surcharge, airport_fee"
+case_05,baseline,t_fare,violated,unverifiable,span,
+case_05,baseline,t_dates,violated,unverifiable,span,
+case_05,baseline,t_min_total,holds,unverifiable,span,
+case_05,baseline_plus,t_prov,unverifiable,unverifiable,span,
+case_05,baseline_plus,t_rows,holds,holds,span,"50,000 rows in the data file"
+case_05,baseline_plus,t_pass,violated,violated,span,"passenger_count range 0–9 (values include 9.0, 3 rows)"
+case_05,baseline_plus,t_pay,holds,holds,span,"payment_type values are {1,2,3,4}"
+case_05,baseline_plus,t_flag,holds,holds,span,"2 unique values: N (49741), Y (259)"
+case_05,baseline_plus,t_phantom,violated,violated,span,no driver_id column present in the dataset schema
+case_05,baseline_plus,t_fare,violated,violated,span,mean total_amount = $29.17
+case_05,baseline_plus,t_dates,violated,violated,span,pickup timestamps range from 2022-10-24 17:37:47 to 2023-01-01 23:19:19
+case_05,baseline_plus,t_min_total,holds,holds,span,min total_amount = -351.00
+case_06,agent,n_prov,unverifiable,unverifiable,span,
+case_06,agent,n_rows,violated,violated,span,row_count=2084
+case_06,agent,n_stations,holds,holds,span,distinct STATION count = 10
+case_06,agent,n_dates,violated,violated,span,"min=2023-01-01, max=2023-12-31, out_of_range_count=293"
+case_06,agent,n_temp,violated,violated,span,"min=-10.0, max=85.0"
+case_06,agent,n_prcp,violated,violated,span,"min=0.0, max=99.99"
+case_06,agent,n_sentinel,holds,holds,span,"nulls=0, sentinel_999.9_count=5, total_rows=2084"
+case_06,baseline,n_prov,unverifiable,unverifiable,span,
+case_06,baseline,n_rows,violated,unverifiable,span,
+case_06,baseline,n_stations,holds,unverifiable,span,
+case_06,baseline,n_dates,violated,unverifiable,span,
+case_06,baseline,n_temp,violated,holds,span,"Sampled TEMP values range from 15.3 to 37.0, entirely within the claimed bounds; no value in the provided rows contradicts this range."
+case_06,baseline,n_prcp,violated,violated,span,"PRCP = 99.99 on 2023-01-30 for station 1001099999, exceeding the claimed 9.99 upper bound."
+case_06,baseline,n_sentinel,holds,unverifiable,span,
+case_06,baseline_plus,n_prov,unverifiable,unverifiable,span,
+case_06,baseline_plus,n_rows,violated,violated,span,"2,084 rows (STATION/DATE count = 2084)"
+case_06,baseline_plus,n_stations,holds,holds,span,"10 unique NAME values / 10 unique STATION ids, all with NO or SV country designators (Jan Mayen, Andoya, Sorstokken, Longyear, Ny Alesund, Hornsund, Karl XII Oya, Edgeoya, Kvitoya, Verlegenhuken)"
+case_06,baseline_plus,n_dates,violated,violated,fuzzy,"365 unique DATE values spanning the full year, with December dates (e.g. 2023-12-21, 2023-12-22, 2023-12-26, 2023-12-28) each showing all 10 stations reporting (count=10), i.e. data extends through December with full, non-intermittent coverage"
+case_06,baseline_plus,n_temp,violated,violated,span,TEMP range -10.0 to 85.0
+case_06,baseline_plus,n_prcp,violated,violated,span,"PRCP range 0.0 to 99.99 (99.99 also doubles as the GSOD missing-value flag, appearing 574 times)"
+case_06,baseline_plus,n_sentinel,holds,holds,fuzzy,"WDSP max = 999.9 (consistent with missing-value encoding); DEWP max = 9999.9 (72 occurrences of 9999.9), SLP max = 9999.9 (1026 occurrences), MIN max = 9999.9 — confirming the described pattern"

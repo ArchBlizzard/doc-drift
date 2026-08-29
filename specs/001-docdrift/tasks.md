@@ -1,4 +1,4 @@
-# Tasks: DocDrift
+﻿# Tasks: DocDrift
 
 **Input:** [spec.md](spec.md), [plan.md](plan.md), [data-model.md](data-model.md), [contracts/](contracts/), [research.md](research.md)
 **Execution rules:** one task = one commit, landed when the task completes with tests green for touched files (Constitution VIII). `[P]` = parallelizable with its neighbors (different files, no dependency). Tasks with no file changes are skipped in the commit series and noted in the session summary. **Gates** block the next phase until met. Full sweeps (marked ⚡) run only at changelog checkpoints to respect subscription usage windows (research S3).
@@ -40,40 +40,40 @@ Deadline anchors (from root PLAN.md §8): Phase 0–2 ≈ H0–H7 · Phase 3–4
 
 ## Phase 2 — Baselines (changelog v0)
 
-- [ ] **T010** `src/docdrift/llm.py`: Agent SDK wrapper — no-tools mode (baselines) + tools mode (agent), pydantic-validated JSON with ≤2 retries, usage/model-id capture, **full message-stream logging to `runs/<case>/<system>/messages.jsonl`** (system prompt, user content, raw reply per call — feeds SR-004), auth precedence per cli-contracts.md.
+- [x] **T010** `src/docdrift/llm.py`: Agent SDK wrapper — no-tools mode (baselines) + tools mode (agent), pydantic-validated JSON with ≤2 retries, usage/model-id capture, **full message-stream logging to `runs/<case>/<system>/messages.jsonl`** (system prompt, user content, raw reply per call — feeds SR-004), auth precedence per cli-contracts.md.
   *Accept:* unit tests with stubbed transport incl. credential-precedence test (`ANTHROPIC_API_KEY` > `CLAUDE_CODE_OAUTH_TOKEN` > stored login) and no-credential → exit 2; live smoke on one tiny prompt.
   *Commit:* `feat: model client wrapper with validated output and message logging`
-- [ ] **T011** `run_baseline.py` (+`--plus`): prompts, verdicts.json per contract, prompt+reply saved as trajectory; missing case dir → exit 3 (tested).
+- [x] **T011** `run_baseline.py` (+`--plus`): prompts, verdicts.json per contract, prompt+reply saved as trajectory; missing case dir → exit 3 (tested).
   *Accept:* output schema-validates on case_01; exit-3 test green.
   *Commit:* `feat: baseline and baseline-plus CLIs`
-- [ ] **T012** `eval/run_all.py` per cli-contracts.md: default all systems × all cases, `--systems` (incl. `baseline_stratified`)/`--cases`/`--force`, skips completed (case, system) pairs, invokes scorer at the end + test for the skip logic.
+- [x] **T012** `eval/run_all.py` per cli-contracts.md: default all systems × all cases, `--systems` (incl. `baseline_stratified`)/`--cases`/`--force`, skips completed (case, system) pairs, invokes scorer at the end + test for the skip logic.
   *Accept:* pytest green; `run_all.py --systems baseline --cases case_01` produces `runs/` + `results/`.
   *Commit:* `feat: eval sweep runner`
-- [ ] **T013** ⚡ Run both baselines on cases 01–06 via run_all, score → `results/v0.md`; measure span-quoting compliance; write CHANGELOG v0 entry (harness + baselines) with numbers.
+- [x] **T013** ⚡ Run both baselines on cases 01–06 via run_all, score → `results/v0.md`; measure span-quoting compliance; write CHANGELOG v0 entry (harness + baselines) with numbers.
   *Accept:* `results/v0.md` committed with per-claim rows for both baselines; CHANGELOG entry links to it. **GATE G2: span compliance ≥95%**, else add format-retry to prompts (and only as a disclosed last resort restructure cards — research S2).
   *Commit:* `eval: v0 baseline results and changelog entry`
 
 ## Phase 3 — Agent Core (changelog v1)
 
-- [ ] **T014 [P]** `src/docdrift/tools/profile.py`: dtypes + head(20) snapshot (the only raw data the agent's model ever sees) + `tests/test_profile.py`.
+- [x] **T014 [P]** `src/docdrift/tools/profile.py`: dtypes + head(20) snapshot (the only raw data the agent's model ever sees) + `tests/test_profile.py`.
   *Accept:* pytest green.
   *Commit:* `feat: profile snapshot tool`
-- [ ] **T015 [P]** `src/docdrift/tools/executor.py`: sandboxed subprocess check runner (fresh interpreter, temp cwd, 60s timeout, 4KB stdout cap) + `tests/test_executor.py` covering timeout, crash, and evidence-row capping.
+- [x] **T015 [P]** `src/docdrift/tools/executor.py`: sandboxed subprocess check runner (fresh interpreter, temp cwd, 60s timeout, 4KB stdout cap) + `tests/test_executor.py` covering timeout, crash, and evidence-row capping.
   *Accept:* pytest green.
   *Commit:* `feat: sandboxed check executor`
-- [ ] **T016** `src/docdrift/agents/extractor.py`: card → typed claims with exact spans; prose → `prose_unverifiable`; + tests against case_01's card AND a claimless-card fixture (valid empty result, warning, exit 0 path).
+- [x] **T016** `src/docdrift/agents/extractor.py`: card → typed claims with exact spans; prose → `prose_unverifiable`; + tests against case_01's card AND a claimless-card fixture (valid empty result, warning, exit 0 path).
   *Accept:* both tests green.
   *Commit:* `feat: claim extractor agent`
-- [ ] **T017** `src/docdrift/agents/synthesizer.py`: claim → self-contained `check(df)` source string honoring the Check contract (verify referenced columns exist → `passed=False, computed="missing-column"` instead of raising).
+- [x] **T017** `src/docdrift/agents/synthesizer.py`: claim → self-contained `check(df)` source string honoring the Check contract (verify referenced columns exist → `passed=False, computed="missing-column"` instead of raising).
   *Accept:* on 3 fixture claims (row_count, null_rate, category_set) the emitted source compiles and `check(df)` returns a valid CheckOutput on a toy frame; phantom-column fixture returns missing-column, not an exception.
   *Commit:* `feat: check synthesizer agent`
-- [ ] **T018 [P]** `src/docdrift/ledger.py`: JSONL append, data+card fingerprints, skip-settled-by-default resume + `tests/test_ledger.py`.
+- [x] **T018 [P]** `src/docdrift/ledger.py`: JSONL append, data+card fingerprints, skip-settled-by-default resume + `tests/test_ledger.py`.
   *Accept:* pytest green.
   *Commit:* `feat: run ledger with default resume`
-- [ ] **T019** `src/docdrift/orchestrator.py` + `run_agent.py`: wire extract → per-claim (synthesize → execute) → verdicts under Semaphore(4); minimal template `audit.md` (reporter agent comes in T031); rich live-progress display (the video's visual); executor crash/timeout retried once → `unverifiable(execution_error)` (tested); prose claims skip synthesis entirely (ledger holds no Check entries for them — tested); v1 checks recorded as `gate_skipped`; missing case dir → exit 3; `--fresh` flag.
+- [x] **T019** `src/docdrift/orchestrator.py` + `run_agent.py`: wire extract → per-claim (synthesize → execute) → verdicts under Semaphore(4); minimal template `audit.md` (reporter agent comes in T031); rich live-progress display (the video's visual); executor crash/timeout retried once → `unverifiable(execution_error)` (tested); prose claims skip synthesis entirely (ledger holds no Check entries for them — tested); v1 checks recorded as `gate_skipped`; missing case dir → exit 3; `--fresh` flag.
   *Accept:* `run_agent.py case_01` end-to-end green; every holds/violated verdict has an executed check in the ledger; retry/prose/exit-3 tests green.
   *Commit:* `feat: v1 agent pipeline end-to-end`
-- [ ] **T020** ⚡ v1 sweep on cases 01–06 + score; CHANGELOG v1 entry.
+- [x] **T020** ⚡ v1 sweep on cases 01–06 + score; CHANGELOG v1 entry.
   *Accept:* `results/v1.md` committed with per-claim rows for all systems run; CHANGELOG entry links to it.
   *Commit:* `eval: v1 agent results and changelog entry`
 
