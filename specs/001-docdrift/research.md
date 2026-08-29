@@ -72,6 +72,6 @@ Decisions recorded in spec-kit format: **Decision / Rationale / Alternatives con
 
 ## Open spikes (scheduled in tasks.md)
 
-- **S1 — SDK auth smoke test on this machine** (T004): one no-tools `claude-agent-sdk` call with no API key set; record resolved model ID and latency here. *Risk if it fails:* fall back to `claude -p` subprocess per R2.
+- **S1 — SDK auth smoke test on this machine** (T004): **RESOLVED 2026-08-29 — PASS.** `claude-agent-sdk 0.2.148` with `ANTHROPIC_API_KEY` cleared answered a no-tools query on the stored Claude Code subscription login; alias `sonnet` resolved to `claude-sonnet-5`; end-to-end latency 13.0s (includes CLI spawn). The `claude -p` fallback (R2) is not needed.
 - **S2 — Span-quoting compliance** (gate G2, end of Phase 2): measure how often each system quotes exact card substrings. ≥95% → keep natural cards; below → add a one-line format-retry, and only as last resort restructure cards (disclosed).
 - **S3 — Subscription usage-window pacing** (observed during Phase 3+ sweeps): record how much of a usage window one full sweep consumes; schedule the two heaviest sweeps immediately after window resets accordingly.
