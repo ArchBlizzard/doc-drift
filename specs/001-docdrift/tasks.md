@@ -79,43 +79,43 @@ Deadline anchors (from root PLAN.md §8): Phase 0–2 ≈ H0–H7 · Phase 3–4
 
 ## Phase 4 — Mutation Gate (changelog v2) — the submission's core
 
-- [ ] **T021** `src/docdrift/tools/mutants.py`: per-claim-type clean + mutant fixture builders (~20 rows) + `tests/test_mutants.py` (for each claim type incl. schema/phantom-column: a known-good check passes clean and fails mutant; a known-vacuous check is caught).
+- [x] **T021** `src/docdrift/tools/mutants.py`: per-claim-type clean + mutant fixture builders (~20 rows) + `tests/test_mutants.py` (for each claim type incl. schema/phantom-column: a known-good check passes clean and fails mutant; a known-vacuous check is caught).
   *Accept:* pytest green, every claim type covered.
   *Commit:* `feat: mutation-gate fixture builders`
-- [ ] **T022** Gate loop in orchestrator: draft → gate → (vacuous → one rewrite with mutant diff → gate) → two strikes = `unverifiable(check_failed)`; vacuous-rate counter into ledger (SC-005 evidence); from here on, holds/violated verdicts require `gate_passed`.
+- [x] **T022** Gate loop in orchestrator: draft → gate → (vacuous → one rewrite with mutant diff → gate) → two strikes = `unverifiable(check_failed)`; vacuous-rate counter into ledger (SC-005 evidence); from here on, holds/violated verdicts require `gate_passed`.
   *Accept:* acceptance scenario 5 reproduced by a seeded test.
   *Commit:* `feat: mutation gate with two-strike policy`
-- [ ] **T023 [P]** `eval/specs/case_07..11.yaml` only (second corruption draws over five datasets; runs the existing generator — no generator-code changes, keeping [P] with T024 file-disjoint).
+- [x] **T023 [P]** `eval/specs/case_07..11.yaml` only (second corruption draws over five datasets; runs the existing generator — no generator-code changes, keeping [P] with T024 file-disjoint).
   *Accept:* `make_cases` twice yields byte-identical case_07..11 + gold, validating against gold.schema.json.
   *Commit:* `feat: eval cases 07-11`
-- [ ] **T024 [P]** Hard case: `eval/synth_transactions.py` (1M-row generator, PCG64 seed 20260829), invoked by make_cases for case_12 + `eval/specs/case_12.yaml` + its card. Violations per amended FR-012: 173 pattern-breaking coupon codes only after row ~810k (below top-10 value counts in a ~2,000-code column) + a fuzzy cross-column share claim (truth 14.2% vs "roughly 10%") that per-column summaries cannot compute.
+- [x] **T024 [P]** Hard case: `eval/synth_transactions.py` (1M-row generator, PCG64 seed 20260829), invoked by make_cases for case_12 + `eval/specs/case_12.yaml` + its card. Violations per amended FR-012: 173 pattern-breaking coupon codes only after row ~810k (below top-10 value counts in a ~2,000-code column) + a fuzzy cross-column share claim (truth 14.2% vs "roughly 10%") that per-column summaries cannot compute.
   *Accept:* generates in ≤1 min; both violations verified by direct pandas in tests, including their invisibility to head samples and top-10 value counts.
   *Commit:* `feat: 1M-row hard case generator`
-- [ ] **T025** ⚡ Full v2 sweep — all 3 systems × 12 cases via run_all → `results/v2.md`; CHANGELOG v2 entry with measured vacuous rate + two concrete vacuous-check exhibits + v1→v2 F1 delta.
+- [x] **T025** ⚡ Full v2 sweep — all 3 systems × 12 cases via run_all → `results/v2.md`; CHANGELOG v2 entry with measured vacuous rate + two concrete vacuous-check exhibits + v1→v2 F1 delta.
   *Accept:* `results/v2.md` + per_claim.csv committed for all three systems; vacuous rate recorded in the entry.
   *Commit:* `eval: v2 full-suite results and changelog entry`
 
 ## Phase 5 — Memory & Calibration (changelog v3)
 
-- [ ] **T026** `src/docdrift/lessons.py` + `lessons.md` loop: post-eval pitfall entries injected into the synthesizer prompt.
+- [x] **T026** `src/docdrift/lessons.py` + `lessons.md` loop: post-eval pitfall entries injected into the synthesizer prompt.
   *Accept:* retries-per-claim reported for first vs last case in the sweep output.
   *Commit:* `feat: lessons memory for check synthesis`
-- [ ] **T027** Abstention calibration: tolerance bands for fuzzy-% claims in config, extractor/synthesizer prompt updates.
+- [x] **T027** Abstention calibration: tolerance bands for fuzzy-% claims in config, extractor/synthesizer prompt updates.
   *Accept:* the fuzzy-claim edge case (±2pp band; 14.2% vs "roughly 10%" → violated) reproduced by test.
   *Commit:* `feat: calibrated abstention for fuzzy claims`
-- [ ] **T028 [P]** Removed experiment (SR-001): `baseline_stratified` context-stuffing variant; run on all cases via run_all; numbers into `results/removed_stratified.md` (changelog entry lands in T034 — keeps this file-disjoint from T029).
+- [x] **T028 [P]** Removed experiment (SR-001): `baseline_stratified` context-stuffing variant; run on all cases via run_all; numbers into `results/removed_stratified.md` (changelog entry lands in T034 — keeps this file-disjoint from T029).
   *Accept:* numbers recorded under results/.
   *Commit:* `eval: stratified-sampling experiment (removed) with evidence`
-- [ ] **T029 [P]** Haiku-synthesizer ablation; numbers into `results/ablation_haiku.md`; keep as cost-optimized default only if F1 holds (changelog entry in T034).
+- [x] **T029 [P]** Haiku-synthesizer ablation; numbers into `results/ablation_haiku.md`; keep as cost-optimized default only if F1 holds (changelog entry in T034).
   *Accept:* numbers recorded under results/.
   *Commit:* `eval: haiku synthesizer ablation`
-- [ ] **T030** ⚡ Final sweep → `results/final.md` + per_claim.csv.
+- [x] **T030** ⚡ Final sweep → `results/final.md` + per_claim.csv.
   *Accept:* committed for all three systems; CHANGELOG v3/final entry links to it.
   *Commit:* `eval: final results`
 
 ## Phase 6 — Report Quality & Kicker
 
-- [ ] **T031** `src/docdrift/agents/reporter.py`: ledger → `audit.md` meeting FR-007's checklist (a)–(e); replace T019's template.
+- [x] **T031** `src/docdrift/agents/reporter.py`: ledger → `audit.md` meeting FR-007's checklist (a)–(e); replace T019's template.
   *Accept:* checklist (a)–(e) passes on two real audits (scripted structural check).
   *Commit:* `feat: reporter agent meeting FR-007 checklist`
 - [x] **T032** Run DocDrift on one real, unmodified public data card + data (video kicker) — dataset MUST have a permissive license; save ledger + audit + `PROVENANCE.md` (license, URL, access date) under `trajectories/kaggle_kicker/`. This demo run is explicitly out-of-contract (ad-hoc case id; no gold). *Executed against OpenML `credit-g` (Kaggle requires an API token; substitution disclosed in PROVENANCE.md). Found two genuine violations in the 1994 card: "Telephone (yes,no)" vs actual `none`/`yes` encoding, and 41 non-conforming guarantor values.*
@@ -124,19 +124,19 @@ Deadline anchors (from root PLAN.md §8): Phase 0–2 ≈ H0–H7 · Phase 3–4
 
 ## Phase 7 — Submission Package
 
-- [ ] **T033** `README.md`: intended user, bottleneck, why it matters (hackathon README requirements), architecture, results table, main failure mode + hot take (candidates in root PLAN.md §11 — pick the one the evidence supports).
+- [x] **T033** `README.md`: intended user, bottleneck, why it matters (hackathon README requirements), architecture, results table, main failure mode + hot take (candidates in root PLAN.md §11 — pick the one the evidence supports).
   *Accept:* every numeric claim has an adjacent repo-relative evidence link (Constitution I walk).
   *Commit:* `docs: submission README`
-- [ ] **T034** Finalize `CHANGELOG.md` (v0→final + removed stratified experiment + haiku ablation, every entry evidence-linked — SR-001).
+- [x] **T034** Finalize `CHANGELOG.md` (v0→final + removed stratified experiment + haiku ablation, every entry evidence-linked — SR-001).
   *Accept:* zero unlinked numbers across README + CHANGELOG (walk recorded in the commit message).
   *Commit:* `docs: finalize improvement changelog`
-- [ ] **T035** `REPRODUCE.md` from quickstart.md + **verified clean-environment run** (fresh clone, fresh venv, cleared env vars; both auth paths, or precedence-tests + disclosure for the API-key direction per scenario 7); fill measured runtime + token counts from ledgers; pin Claude Code CLI version; credential scan of tree AND history (gitleaks or grep for key patterns) with the clean result recorded.
+- [x] **T035** `REPRODUCE.md` from quickstart.md + **verified clean-environment run** (fresh clone, fresh venv, cleared env vars; both auth paths, or precedence-tests + disclosure for the API-key direction per scenario 7); fill measured runtime + token counts from ledgers; pin Claude Code CLI version; credential scan of tree AND history (gitleaks or grep for key patterns) with the clean result recorded.
   *Accept:* SC-004 tolerances stated; scan clean; measured numbers in place.
   *Commit:* `docs: verified reproduction guide`
-- [ ] **T036 [P]** `DISCLOSURE.md` + curate `trajectories/`: agent runs for case_04 + case_12 (ledger + messages.jsonl for extractor, synthesizer, gate loop, reporter), one baseline transcript, Claude Code build-session excerpts, and `trajectories/ideation/` (project-selection + audit workflow transcripts from the planning sessions) — SR-004.
+- [x] **T036 [P]** `DISCLOSURE.md` + curate `trajectories/`: agent runs for case_04 + case_12 (ledger + messages.jsonl for extractor, synthesizer, gate loop, reporter), one baseline transcript, Claude Code build-session excerpts, and `trajectories/ideation/` (project-selection + audit workflow transcripts from the planning sessions) — SR-004.
   *Accept:* all four agent roles + baseline + coding-agent + ideation present; at least one mutation-gate rejection → rewrite episode included (swap in another case's run or a targeted single-claim run if the defaults contain none).
   *Commit:* `docs: agent trajectories and tool disclosure`
-- [ ] **T037** Video: script per root PLAN.md §8 H37–H40 (spec SR-003's six elements are authoritative); record.
+- [x] **T037** Video: script per root PLAN.md §8 H37–H40 (spec SR-003's six elements are authoritative); record.
   *Accept:* recorded video ≤5:00 containing all six SR-003 elements; only `video/script.md` is committed.
   *Commit:* `docs: video script`
 - [ ] **T038** Hard buffer: fix whatever T035/T037 surfaced; ⚡ re-run final sweep only if code changed after T030.
