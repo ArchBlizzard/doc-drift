@@ -12,6 +12,7 @@ venv/
 # generated at runtime (representative ledgers are curated into trajectories/)
 runs/
 runs_haiku/
+runs_opus/
 
 # large generated eval artifacts are rebuilt by `make data` (gold + specs stay committed)
 cases/

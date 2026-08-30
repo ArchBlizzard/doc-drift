@@ -47,7 +47,7 @@ Cost: full 12-case audit sweep ≈ 55k tokens / ~16 min — 13% fewer tokens tha
 
 ## Improvement Changelog
 
-**Clearly labelled and evidence-linked in [CHANGELOG.md](CHANGELOG.md)** — v0 (harness + baselines) → v1 (execution pipeline) → v2 (mutation gate, hard-case redesign after v0 proved `describe()` sees too much) → v3 (memory + calibration + fixture fixes), plus the removed stratified-sampling experiment and the Haiku ablation ([results/ablation_haiku.md](results/ablation_haiku.md): the cheaper model cost 2.3× more end-to-end because retries multiplied — and still lost 0.11 F1, though the gate kept it at zero false confirmations).
+**Clearly labelled and evidence-linked in [CHANGELOG.md](CHANGELOG.md)** — v0 (harness + baselines) → v1 (execution pipeline) → v2 (mutation gate, hard-case redesign after v0 proved `describe()` sees too much) → v3 (memory + calibration + fixture fixes), plus the removed stratified-sampling experiment and two model ablations: Haiku 4.5 ([results/ablation_haiku.md](results/ablation_haiku.md)) and Opus 5 ([results/ablation_opus.md](results/ablation_opus.md)). The ladder — Haiku 0.815/119k tokens, Sonnet 0.928/55k, Opus 0.936/23k — surfaced a counterintuitive finding: **stronger models are token-cheaper on a gated pipeline**, because retries and gate rewrites dominate the bill, and every tier held zero false confirmations: the safety property is the gate's, not the model's.
 
 ## Main failure mode
 

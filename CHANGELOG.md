@@ -167,6 +167,17 @@ discipline, not model strength. The cheaper model was 2.3× more expensive
 end-to-end (retries and rewrites multiplied calls), so Sonnet stays the
 default. [results/ablation_haiku.md](results/ablation_haiku.md).
 
+## Ablation — Opus as the pipeline model (T041, added post-core)
+
+Same v3 pipeline on Opus 5: macro-F1 **0.936**, 39/41, 0 false confirmations
+— and **57% fewer tokens than Sonnet** (23.5k vs 55k): stronger models are
+token-cheaper on a gated pipeline because retries and rewrites, not
+verbosity, dominate the bill. Opus recovered Sonnet's sentinel-lesson miss;
+the two remaining misses are identical across all three models — harness
+properties, not model properties. Sonnet stays the default on billed-cost
+grounds; Opus is the documented quality ceiling.
+[results/ablation_opus.md](results/ablation_opus.md).
+
 ## Final (T030)
 
 The complete four-system comparison on the full suite:
