@@ -26,6 +26,8 @@ One command per dataset: `python run_agent.py <case>`. The pipeline (determinist
 
 Memory (`lessons.md`, injected into every synthesis) accumulates check-writing pitfalls across eval iterations; a fingerprinted ledger makes every run resumable by default.
 
+**Use it from your browser:** `uv run python run_web.py` → http://127.0.0.1:8787 — upload any CSV/parquet plus its README (or give a Kaggle `owner/slug`, fetched with your own local Kaggle credentials), watch the claims settle live, and read the audit with per-claim verdicts and downloadable ledger. Local single-user demo surface; the pipeline underneath is unchanged.
+
 ## Measured results (12 cases, 98 gold claims, 41 planted violations)
 
 Fair fight: same cases, same scorer, same model. `baseline` = the card + dtypes + 50 rows in one prompt (what people actually do). `baseline_plus` = the strongest single prompt we could build — full-column summary statistics + top-10 value counts.

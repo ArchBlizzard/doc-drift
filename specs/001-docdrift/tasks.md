@@ -142,6 +142,15 @@ Deadline anchors (from root PLAN.md §8): Phase 0–2 ≈ H0–H7 · Phase 3–4
 - [ ] **T038** Hard buffer: fix whatever T035/T037 surfaced; ⚡ re-run final sweep only if code changed after T030.
   *Accept:* clean-clone rehearsal issues closed.
   *Commit:* (only if changes) `fix: post-rehearsal corrections`
+## Phase 8 — Post-core additions (added 2026-08-30, before freeze)
+
+- [ ] **T040** Local web UI (`src/docdrift/web.py` + `run_web.py`): upload a data file + data card (or give a Kaggle `owner/slug` — fetched with the user's own local credentials), run the full gated pipeline, render the audit in the browser with live progress. Built on starlette/uvicorn/python-multipart already present in the dependency tree — zero new packages. Explicitly a local demo surface: no auth, no multi-tenancy, consequential-action posture unchanged (read-only analysis, sandboxed executor).
+  *Accept:* pytest green for `tests/test_web.py` (form renders, job lifecycle, results table from a completed run); live browser session audits an uploaded CSV end-to-end.
+  *Commit:* `feat: local web UI for direct dataset audits`
+- [ ] **T041** Opus-vs-Sonnet ablation: full 12-case agent sweep with `--model opus` into `runs_opus/`, scored with the same harness → `results/ablation_opus.md`; CHANGELOG/README references updated.
+  *Accept:* numbers recorded under results/ with the same table shape as the Haiku ablation.
+  *Commit:* `eval: opus pipeline-model ablation`
+
 - [ ] **T039** Feature freeze at H43; package, link-check, and submit during H43–H44 (nothing new after H43 — Constitution VII). *(No file changes — noted in summary, not committed.)*
 
 ---
