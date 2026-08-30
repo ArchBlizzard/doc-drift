@@ -1,0 +1,296 @@
+{
+  "case_id": "case_04",
+  "system": "agent",
+  "model_id": "claude-sonnet-5",
+  "claims": [
+    {
+      "quoted_span": "Line-item sales records maintained by the back-office team of a UK-based online giftware retailer.",
+      "span_start": 66,
+      "span_end": 164,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "The extract contains 40,000 line items.",
+      "span_start": 165,
+      "span_end": 204,
+      "verdict": "holds",
+      "claimed": "The extract contains 40,000 line items.",
+      "computed": "40000 rows (expected 40000)"
+    },
+    {
+      "quoted_span": "All invoices fall between 5 and 21 December 2010.",
+      "span_start": 205,
+      "span_end": 254,
+      "verdict": "violated",
+      "claimed": "All invoices fall between 5 and 21 December 2010.",
+      "computed": "min=2010-12-01 08:26:00, max=2010-12-21 13:06:00, out_of_range=7419",
+      "evidence_rows": [
+        {
+          "invoice": "536365",
+          "stockcode": "85123A",
+          "description": "WHITE HANGING HEART T-LIGHT HOLDER",
+          "quantity": "6",
+          "invoicedate": "2010-12-01 08:26:00",
+          "price": "2.55",
+          "customer_id": "17850.0",
+          "country": "United Kingdom"
+        },
+        {
+          "invoice": "536365",
+          "stockcode": "71053",
+          "description": "WHITE METAL LANTERN",
+          "quantity": "6",
+          "invoicedate": "2010-12-01 08:26:00",
+          "price": "3.39",
+          "customer_id": "17850.0",
+          "country": "United Kingdom"
+        },
+        {
+          "invoice": "536365",
+          "stockcode": "84406B",
+          "description": "CREAM CUPID HEARTS COAT HANGER",
+          "quantity": "8",
+          "invoicedate": "2010-12-01 08:26:00",
+          "price": "2.75",
+          "customer_id": "17850.0",
+          "country": "United Kingdom"
+        },
+        {
+          "invoice": "536365",
+          "stockcode": "84029G",
+          "description": "KNITTED UNION FLAG HOT WATER BOTTLE",
+          "quantity": "6",
+          "invoicedate": "2010-12-01 08:26:00",
+          "price": "3.39",
+          "customer_id": "17850.0",
+          "country": "United Kingdom"
+        },
+        {
+          "invoice": "536365",
+          "stockcode": "84029E",
+          "description": "RED WOOLLY HOTTIE WHITE HEART.",
+          "quantity": "6",
+          "invoicedate": "2010-12-01 08:26:00",
+          "price": "3.39",
+          "customer_id": "17850.0",
+          "country": "United Kingdom"
+        }
+      ]
+    },
+    {
+      "quoted_span": "Each row is one product line on one invoice.",
+      "span_start": 267,
+      "span_end": 311,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "Quantities run from -9,360 up to 2,880",
+      "span_start": 312,
+      "span_end": 350,
+      "verdict": "violated",
+      "claimed": "Quantities run from -9,360 up to 2,880",
+      "computed": "min=-9360, max=3500",
+      "evidence_rows": [
+        {
+          "invoice": "C536757",
+          "stockcode": "84347",
+          "description": "ROTATING SILVER ANGELS T-LIGHT HLDR",
+          "quantity": "-9360",
+          "invoicedate": "2010-12-02 14:23:00",
+          "price": "0.03",
+          "customer_id": "15838.0",
+          "country": "United Kingdom"
+        },
+        {
+          "invoice": "537666",
+          "stockcode": "22534",
+          "description": "MAGIC DRAWING SLATE SPACEBOY ",
+          "quantity": "3500",
+          "invoicedate": "2010-12-07 18:36:00",
+          "price": "0.85",
+          "customer_id": "nan",
+          "country": "United Kingdom"
+        },
+        {
+          "invoice": "C539602",
+          "stockcode": "37495",
+          "description": "FAIRY CAKE BIRTHDAY CANDLE SET",
+          "quantity": "3500",
+          "invoicedate": "2010-12-20 14:02:00",
+          "price": "3.75",
+          "customer_id": "13369.0",
+          "country": "United Kingdom"
+        }
+      ]
+    },
+    {
+      "quoted_span": "with negative values marking returns and cancellations",
+      "span_start": 352,
+      "span_end": 406,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "Buyers come from 24 countries.",
+      "span_start": 408,
+      "span_end": 438,
+      "verdict": "unverifiable",
+      "reason": "check_failed"
+    },
+    {
+      "quoted_span": "Customer IDs are absent on roughly 20% of rows",
+      "span_start": 457,
+      "span_end": 503,
+      "verdict": "violated",
+      "claimed": "Customer IDs are absent on roughly 20% of rows",
+      "computed": "34.97% of 40000 rows have null customer_id (13989 rows)",
+      "evidence_rows": [
+        {
+          "invoice": "536414",
+          "stockcode": "22139",
+          "description": "nan",
+          "quantity": "56",
+          "invoicedate": "2010-12-01 11:52:00",
+          "price": "0.0",
+          "customer_id": "nan",
+          "country": "United Kingdom"
+        },
+        {
+          "invoice": "536544",
+          "stockcode": "21773",
+          "description": "DECORATIVE ROSE BATHROOM BOTTLE",
+          "quantity": "1",
+          "invoicedate": "2010-12-01 14:32:00",
+          "price": "2.51",
+          "customer_id": "nan",
+          "country": "United Kingdom"
+        },
+        {
+          "invoice": "536544",
+          "stockcode": "21774",
+          "description": "DECORATIVE CATS BATHROOM BOTTLE",
+          "quantity": "2",
+          "invoicedate": "2010-12-01 14:32:00",
+          "price": "2.51",
+          "customer_id": "nan",
+          "country": "United Kingdom"
+        },
+        {
+          "invoice": "536544",
+          "stockcode": "21786",
+          "description": "POLKADOT RAIN HAT ",
+          "quantity": "4",
+          "invoicedate": "2010-12-01 14:32:00",
+          "price": "0.85",
+          "customer_id": "nan",
+          "country": "United Kingdom"
+        },
+        {
+          "invoice": "536544",
+          "stockcode": "21787",
+          "description": "RAIN PONCHO RETROSPOT",
+          "quantity": "2",
+          "invoicedate": "2010-12-01 14:32:00",
+          "price": "1.66",
+          "customer_id": "nan",
+          "country": "United Kingdom"
+        }
+      ]
+    },
+    {
+      "quoted_span": "mostly guest checkouts",
+      "span_start": 505,
+      "span_end": 527,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "123 line items lack a product description.",
+      "span_start": 529,
+      "span_end": 571,
+      "verdict": "holds",
+      "claimed": "123 line items lack a product description.",
+      "computed": "123 rows with missing/blank description",
+      "evidence_rows": [
+        {
+          "invoice": "536414",
+          "stockcode": "22139",
+          "description": "nan",
+          "quantity": "56",
+          "invoicedate": "2010-12-01 11:52:00",
+          "price": "0.0",
+          "customer_id": "nan",
+          "country": "United Kingdom"
+        },
+        {
+          "invoice": "536545",
+          "stockcode": "21134",
+          "description": "nan",
+          "quantity": "1",
+          "invoicedate": "2010-12-01 14:32:00",
+          "price": "0.0",
+          "customer_id": "nan",
+          "country": "United Kingdom"
+        },
+        {
+          "invoice": "536547",
+          "stockcode": "37509",
+          "description": "nan",
+          "quantity": "1",
+          "invoicedate": "2010-12-01 14:33:00",
+          "price": "0.0",
+          "customer_id": "nan",
+          "country": "United Kingdom"
+        },
+        {
+          "invoice": "536546",
+          "stockcode": "22145",
+          "description": "nan",
+          "quantity": "1",
+          "invoicedate": "2010-12-01 14:33:00",
+          "price": "0.0",
+          "customer_id": "nan",
+          "country": "United Kingdom"
+        },
+        {
+          "invoice": "536552",
+          "stockcode": "20950",
+          "description": "nan",
+          "quantity": "1",
+          "invoicedate": "2010-12-01 14:34:00",
+          "price": "0.0",
+          "customer_id": "nan",
+          "country": "United Kingdom"
+        }
+      ]
+    },
+    {
+      "quoted_span": "Invoice numbers beginning with C",
+      "span_start": 585,
+      "span_end": 617,
+      "verdict": "unverifiable",
+      "reason": "check_failed"
+    },
+    {
+      "quoted_span": "denote cancellations",
+      "span_start": 618,
+      "span_end": 638,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "Unit prices of zero appear on adjustment lines and free samples.",
+      "span_start": 640,
+      "span_end": 704,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    }
+  ],
+  "usage": {
+    "input_tokens": 2,
+    "output_tokens": 4936
+  },
+  "wall_s": 67.65
+}

@@ -1,0 +1,97 @@
+{
+  "case_id": "case_04",
+  "system": "baseline",
+  "model_id": "claude-sonnet-5",
+  "claims": [
+    {
+      "quoted_span": "Line-item sales records maintained by the back-office team of a UK-based online giftware retailer.",
+      "span_start": 66,
+      "span_end": 164,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "The extract contains 40,000 line items.",
+      "span_start": 165,
+      "span_end": 204,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "All invoices fall between 5 and 21 December 2010.",
+      "span_start": 205,
+      "span_end": 254,
+      "verdict": "violated",
+      "claimed": "All invoices dated between 5 and 21 December 2010",
+      "computed": "First 50 rows include invoices (e.g. 536365-536373) dated 2010-12-01, which falls before 5 December 2010"
+    },
+    {
+      "quoted_span": "Each row is one product line on one invoice.",
+      "span_start": 267,
+      "span_end": 311,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "Quantities run from -9,360 up to 2,880",
+      "span_start": 312,
+      "span_end": 350,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "with negative values marking returns and cancellations",
+      "span_start": 352,
+      "span_end": 406,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "Buyers come from 24 countries.",
+      "span_start": 408,
+      "span_end": 438,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "Customer IDs are absent on roughly 20% of rows",
+      "span_start": 457,
+      "span_end": 503,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "mostly guest checkouts",
+      "span_start": 505,
+      "span_end": 527,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "123 line items lack a product description.",
+      "span_start": 529,
+      "span_end": 571,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "Invoice numbers beginning with C denote cancellations.",
+      "span_start": 585,
+      "span_end": 639,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "Unit prices of zero appear on adjustment lines and free samples.",
+      "span_start": 640,
+      "span_end": 704,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    }
+  ],
+  "usage": {
+    "input_tokens": 2,
+    "output_tokens": 4063
+  },
+  "wall_s": 41.98
+}

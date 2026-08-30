@@ -1,0 +1,196 @@
+{
+  "case_id": "case_12",
+  "system": "agent",
+  "model_id": "claude-sonnet-5",
+  "claims": [
+    {
+      "quoted_span": "Line-level order records assembled by the fulfilment engineering team from the order event stream.",
+      "span_start": 43,
+      "span_end": 141,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "The file holds exactly 1,000,000 orders.",
+      "span_start": 142,
+      "span_end": 182,
+      "verdict": "holds",
+      "claimed": "The file holds exactly 1,000,000 orders.",
+      "computed": "row_count=1000000"
+    },
+    {
+      "quoted_span": "Rows are ordered chronologically by `ts`.",
+      "span_start": 183,
+      "span_end": 224,
+      "verdict": "holds",
+      "claimed": "Rows are ordered chronologically by `ts`.",
+      "computed": "monotonic_increasing=True, out_of_order_rows=0, unparseable_ts=0"
+    },
+    {
+      "quoted_span": "Orders cover 1 January through 31 December 2024",
+      "span_start": 239,
+      "span_end": 286,
+      "verdict": "holds",
+      "claimed": "Orders cover 1 January through 31 December 2024",
+      "computed": "min=2024-01-01 00:00:00, max=2024-12-31 23:59:59, out_of_range_count=0"
+    },
+    {
+      "quoted_span": "with volume roughly even across the year",
+      "span_start": 288,
+      "span_end": 328,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "Order values span 5.00 to 500.00 dollars.",
+      "span_start": 342,
+      "span_end": 383,
+      "verdict": "holds",
+      "claimed": "Order values span 5.00 to 500.00 dollars.",
+      "computed": "min=5.0, max=500.0"
+    },
+    {
+      "quoted_span": "The `status` column takes exactly four values: PLACED, SHIPPED, DELIVERED and RETURNED.",
+      "span_start": 384,
+      "span_end": 471,
+      "verdict": "holds",
+      "claimed": "The `status` column takes exactly four values: PLACED, SHIPPED, DELIVERED and RETURNED.",
+      "computed": "values=DELIVERED, PLACED, RETURNED, SHIPPED"
+    },
+    {
+      "quoted_span": "Orders arrive via three channels: web, app and express.",
+      "span_start": 472,
+      "span_end": 527,
+      "verdict": "holds",
+      "claimed": "Orders arrive via three channels: web, app and express.",
+      "computed": "channel values: app, express, web"
+    },
+    {
+      "quoted_span": "Every non-empty `coupon_id` matches the pattern CP-#####.",
+      "span_start": 528,
+      "span_end": 585,
+      "verdict": "violated",
+      "claimed": "Every non-empty `coupon_id` matches the pattern CP-#####.",
+      "computed": "382464/382637 non-empty coupon_id values match ^CP-\\d{5}$; 173 violations",
+      "evidence_rows": [
+        {
+          "order_id": "811033",
+          "ts": "2024-10-23 21:18:25",
+          "amount": "386.51",
+          "status": "RETURNED",
+          "channel": "web",
+          "coupon_id": "XX-BAD-CODE"
+        },
+        {
+          "order_id": "811520",
+          "ts": "2024-10-24 01:09:59",
+          "amount": "387.92",
+          "status": "DELIVERED",
+          "channel": "express",
+          "coupon_id": "XX-BAD-CODE"
+        },
+        {
+          "order_id": "811560",
+          "ts": "2024-10-24 01:26:44",
+          "amount": "287.88",
+          "status": "SHIPPED",
+          "channel": "app",
+          "coupon_id": "XX-BAD-CODE"
+        },
+        {
+          "order_id": "811572",
+          "ts": "2024-10-24 01:32:31",
+          "amount": "331.83",
+          "status": "RETURNED",
+          "channel": "web",
+          "coupon_id": "XX-BAD-CODE"
+        },
+        {
+          "order_id": "813171",
+          "ts": "2024-10-24 15:38:14",
+          "amount": "477.3",
+          "status": "PLACED",
+          "channel": "app",
+          "coupon_id": "XX-BAD-CODE"
+        }
+      ]
+    },
+    {
+      "quoted_span": "Roughly 10% of orders pair a coupon with the express channel.",
+      "span_start": 586,
+      "span_end": 647,
+      "verdict": "violated",
+      "claimed": "Roughly 10% of orders pair a coupon with the express channel.",
+      "computed": "14.20% of 1000000 orders pair a coupon with express channel (142010 orders)",
+      "evidence_rows": [
+        {
+          "order_id": "4",
+          "ts": "2024-01-01 00:01:57",
+          "amount": "29.02",
+          "status": "PLACED",
+          "channel": "express",
+          "coupon_id": "None"
+        },
+        {
+          "order_id": "7",
+          "ts": "2024-01-01 00:03:42",
+          "amount": "447.1",
+          "status": "SHIPPED",
+          "channel": "express",
+          "coupon_id": "CP-00550"
+        },
+        {
+          "order_id": "9",
+          "ts": "2024-01-01 00:07:21",
+          "amount": "31.17",
+          "status": "DELIVERED",
+          "channel": "express",
+          "coupon_id": "CP-00361"
+        },
+        {
+          "order_id": "16",
+          "ts": "2024-01-01 00:09:33",
+          "amount": "444.3",
+          "status": "SHIPPED",
+          "channel": "express",
+          "coupon_id": "CP-00230"
+        },
+        {
+          "order_id": "20",
+          "ts": "2024-01-01 00:11:42",
+          "amount": "391.38",
+          "status": "SHIPPED",
+          "channel": "express",
+          "coupon_id": "CP-00084"
+        }
+      ]
+    },
+    {
+      "quoted_span": "Coupon codes are reused heavily across orders",
+      "span_start": 661,
+      "span_end": 706,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    },
+    {
+      "quoted_span": "`order_id` is the only unique key",
+      "span_start": 708,
+      "span_end": 741,
+      "verdict": "holds",
+      "claimed": "`order_id` is the only unique key",
+      "computed": "order_id unique=True; rows=1000000, nunique=1000000, duplicate_rows=0"
+    },
+    {
+      "quoted_span": "Amounts are gross of refunds, which appear as later status transitions rather than negative rows.",
+      "span_start": 743,
+      "span_end": 840,
+      "verdict": "unverifiable",
+      "reason": "prose"
+    }
+  ],
+  "usage": {
+    "input_tokens": 2,
+    "output_tokens": 4480
+  },
+  "wall_s": 91.65
+}
