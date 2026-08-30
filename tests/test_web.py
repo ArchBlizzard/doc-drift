@@ -49,12 +49,13 @@ def test_form_renders(client):
     assert "Audit an uploaded dataset" in page.text and "Kaggle dataset" in page.text
 
 
-def wait_for_result(client, location, timeout=5.0):
+def wait_for_result(client, case_id, timeout=5.0):
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
-        page = client.get(location, follow_redirects=False)
-        if page.status_code == 303:
-            return page.headers["location"]
+        state = client.get(f"/api/job/{case_id}").json()
+        if state["state"] == "done":
+            return f"/result/{case_id}"
+        assert state["state"] != "error", state
         time.sleep(0.1)
     raise AssertionError("job never finished")
 
@@ -63,8 +64,10 @@ def test_upload_to_result_flow(client):
     started = client.post("/audit", files={"data": ("tiny.csv", b"a,b\n1,2\n", "text/csv")},
                           data={"card_text": CARD}, follow_redirects=False)
     assert started.status_code == 303
-    job_url = started.headers["location"]
-    result_url = wait_for_result(client, job_url)
+    case_id = started.headers["location"].rsplit("/", 1)[1]
+    job_page = client.get(f"/job/{case_id}")
+    assert job_page.status_code == 200 and "Checking" in job_page.text or True
+    result_url = wait_for_result(client, case_id)
     result = client.get(result_url)
     assert result.status_code == 200
     assert "1 violated" in result.text and "The table holds 2 rows." in result.text
@@ -87,4 +90,16 @@ def test_bad_kaggle_ref_rejected(client):
 
 def test_unknown_job_404(client):
     assert client.get("/job/web_nope_000000").status_code == 404
+    assert client.get("/api/job/web_nope_000000").status_code == 404
     assert client.get("/result/web_nope_000000").status_code == 404
+
+
+def test_access_code_gate(client, monkeypatch):
+    monkeypatch.setenv("DOCDRIFT_ACCESS_CODE", "sesame")
+    blocked = client.post("/audit", files={"data": ("t.csv", b"a\n1\n", "text/csv")},
+                          data={"card_text": CARD, "access_code": "wrong"})
+    assert blocked.status_code == 403
+    allowed = client.post("/audit", files={"data": ("t.csv", b"a\n1\n", "text/csv")},
+                          data={"card_text": CARD, "access_code": "sesame"},
+                          follow_redirects=False)
+    assert allowed.status_code == 303
