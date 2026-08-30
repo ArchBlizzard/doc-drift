@@ -1,0 +1,16 @@
+.git
+.venv
+runs
+runs_haiku
+runs_opus
+cases
+data_src
+trajectories
+results
+specs
+tests
+video
+scripts
+eval
+*.md
+!lessons.md

@@ -1,0 +1,16 @@
+# Render blueprint: deploy the DocDrift web UI as a Docker web service.
+# In the Render dashboard, set the two secret env vars after creating the
+# service (they are marked sync: false so they never live in the repo).
+services:
+  - type: web
+    name: docdrift
+    runtime: docker
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: CLAUDE_CODE_OAUTH_TOKEN
+        sync: false   # make one with: claude setup-token (uses your Claude subscription)
+      - key: DOCDRIFT_ACCESS_CODE
+        sync: false   # any secret word; visitors need it to start an audit

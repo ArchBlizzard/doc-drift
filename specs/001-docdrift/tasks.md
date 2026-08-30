@@ -151,6 +151,13 @@ Deadline anchors (from root PLAN.md §8): Phase 0–2 ≈ H0–H7 · Phase 3–4
   *Accept:* numbers recorded under results/ with the same table shape as the Haiku ablation.
   *Commit:* `eval: opus pipeline-model ablation`
 
+- [x] **T042** Restyle the web UI to Apple Human Interface Guidelines: system font, quiet ground, rounded cards, segmented control, drag and drop, live JSON-polled progress bar, dark mode, plain-words copy with no em dashes; optional `DOCDRIFT_ACCESS_CODE` gate for deployed copies.
+  *Accept:* pytest green for the updated `tests/test_web.py` (incl. the access-code gate); live page loads with the new design.
+  *Commit:* `feat: apple-style interactive web ui with access gate`
+- [x] **T043** Render deployment files: `Dockerfile` (Python + Node + Claude Code CLI), `.dockerignore`, `render.yaml` blueprint (free plan, secrets as unsynced env vars), `DEPLOY.md` with the honest auth answer (subscription token via `claude setup-token`, no paid key needed, public-use cautions).
+  *Accept:* files present and referenced from DEPLOY.md; local build not required for the judge path.
+  *Commit:* `feat: render deployment files and guide`
+
 - [ ] **T039** Feature freeze at H43; package, link-check, and submit during H43–H44 (nothing new after H43 — Constitution VII). *(No file changes — noted in summary, not committed.)*
 
 ---
