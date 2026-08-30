@@ -119,3 +119,61 @@ compound sentence split whose abstaining half won span alignment (case_01).
 **Decision:** kept — the gate's cost is measured (three abstentions, zero
 false confirmations) and each miss has a targeted v3 fix: unique-valued
 exists-fixtures, and lessons.md entries 7–8.
+
+## v3 — Lessons memory + calibrated abstention + fixture fixes (T026/T027)
+
+**What:** `lessons.md` (8 evidence-cited check-writing pitfalls) injected into
+every synthesis prompt; explicit ±2pp tolerance-band semantics for
+"roughly X%" claims (end-to-end test in `tests/test_calibration.py`); the
+phantom-column clean fixture upgraded to unique non-null values (commit
+`815eb1d`); pipeline version-stamping so ledgers and claim caches can never
+mix generations.
+
+**Result** ([results/final.md](results/final.md)): agent **0.928** macro-F1,
+38/41 violations, **0 false confirmations** across 98 gold claims. All three
+phantom columns now score `violated` via the missing-column contract (v2's
+regression recovered); gate first-draft rejections fell to ~4% as lessons
+absorbed known pitfalls.
+
+**Failure observed — memory can regress other cases.** Lesson 1 taught
+sentinel awareness (from the baselines' `?`-vs-null confusion); v3's NOAA
+precipitation check then *excluded* the 99.99 sentinel and judged the
+perturbed range claim `holds` — flipping a violation v2 had caught. The
+reading is defensible (the card itself documents sentinel encodings), but the
+mechanism is the lesson: **a memory entry is a behavior change and needs
+regression evals, exactly like code.** Kept in the miss column rather than
+papered over; gold unchanged.
+
+**Decision:** kept. The persistent abstention on proxy-count checks
+(`r_countries`) is the gate working as designed: it refuses semantics it
+cannot verify.
+
+## Removed — stratified-sample context stuffing (T028)
+
+The "context can replace execution" hypothesis, run on all 12 cases with the
+strongest sampling prompt we could build (3×600 seeded rows from head/middle/
+tail). **Removed with its numbers:** macro-F1 0.886, 31/41 violations, and
+**8 false confirmations** — it certifies whatever its samples miss, including
+the hard case's row-810k pattern break — at 15× the agent's tokens and 7× its
+wall clock (7 of 12 first runs collapsed into narrated hand-arithmetic that
+blew the output-turn cap). Full write-up:
+[results/removed_stratified.md](results/removed_stratified.md).
+
+## Ablation — Haiku as the pipeline model (T029)
+
+Same v3 pipeline on Haiku 4.5: macro-F1 0.815, 37/41 — and **still 0 false
+confirmations**: the safety property lives in the gate + abstention
+discipline, not model strength. The cheaper model was 2.3× more expensive
+end-to-end (retries and rewrites multiplied calls), so Sonnet stays the
+default. [results/ablation_haiku.md](results/ablation_haiku.md).
+
+## Final (T030)
+
+The complete four-system comparison on the full suite:
+[results/final.md](results/final.md) with per-claim detail in
+[results/final_per_claim.csv](results/final_per_claim.csv). Headline: the
+agent is the only system with zero false certificates (baseline_plus 2,
+baseline 3, stratified 8), sweeps the hard case 9/9, and audits all 12
+datasets for 55k tokens in ~16 minutes. Main contribution, by measurement:
+the mutation gate (v2) — it is what converts misses into abstentions instead
+of wrong confirmations.
