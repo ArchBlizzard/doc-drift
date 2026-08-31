@@ -134,6 +134,16 @@ a{color:var(--accent)}
 .sheet pre{margin:0;padding:1rem 1.2rem;overflow:auto;white-space:pre-wrap;
   word-break:break-word;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
   font-size:.8rem;line-height:1.5}
+.sheet .vbody{padding:1rem 1.4rem;overflow:auto}
+.sheet .mono{white-space:pre-wrap;word-break:break-word;font-size:.8rem;line-height:1.5;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.doc{font-size:.9rem}
+.doc h2{font-size:1.2rem;margin:.2rem 0 .6rem}
+.doc h3{font-size:1rem;margin:1.2rem 0 .4rem}
+.doc h4{font-size:.9rem;margin:1rem 0 .3rem}
+.doc p{margin:.4rem 0}
+.doc table{margin:.6rem 0;font-size:.8rem}
+.doc ul{margin:.4rem 0;padding-left:1.2rem}
 .sheet footer{padding:.6rem 1.2rem;border-top:1px solid var(--line);font-size:.82rem}
 .duel{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin:.4rem 0 1rem}
 @media (max-width:640px){.duel{grid-template-columns:1fr}}
@@ -338,19 +348,64 @@ tick();
 VIEWER = """<div class="modal" id="modal" onclick="if(event.target===this)closeViewer()">
 <div class="sheet"><header><b id="v-title"></b>
 <button class="x" onclick="closeViewer()" aria-label="Close">✕</button></header>
-<pre id="v-body">loading…</pre>
+<div class="vbody" id="v-body">loading…</div>
 <footer><a id="v-raw" href="#" target="_blank">open the raw file</a></footer>
 </div></div>
 <script>
 function closeViewer(){ document.getElementById('modal').classList.remove('open'); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeViewer(); });
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function inline(s){
+  return esc(s).replace(/\\*\\*(.+?)\\*\\*/g,'<b>$1</b>')
+               .replace(/`([^`]+)`/g,'<code>$1</code>');
+}
+// a tiny renderer for the report's own markdown: headings, tables, lists, bold
+function mdToHtml(text){
+  const lines = text.split('\\n'); let html = '', i = 0, para = [];
+  const flush = () => { if (para.length){ html += '<p>' + inline(para.join(' ')) + '</p>'; para = []; } };
+  while (i < lines.length){
+    const l = lines[i];
+    if (/^\\|/.test(l)){
+      flush(); const rows = [];
+      while (i < lines.length && /^\\|/.test(lines[i])){ rows.push(lines[i]); i++; }
+      html += '<table>';
+      rows.forEach((r, ri) => {
+        if (/^\\|[\\s\\-|:]+\\|$/.test(r)) return;
+        const tag = ri === 0 ? 'th' : 'td';
+        const cells = r.replace(/^\\||\\|$/g,'').split('|').map(c => inline(c.trim()));
+        html += '<tr><' + tag + '>' + cells.join('</' + tag + '><' + tag + '>') + '</' + tag + '></tr>';
+      });
+      html += '</table>'; continue;
+    }
+    if (/^###+\\s/.test(l)){ flush(); html += '<h4>' + inline(l.replace(/^#+\\s/, '')) + '</h4>'; }
+    else if (/^##\\s/.test(l)){ flush(); html += '<h3>' + inline(l.slice(3)) + '</h3>'; }
+    else if (/^#\\s/.test(l)){ flush(); html += '<h2>' + inline(l.slice(2)) + '</h2>'; }
+    else if (/^[-*]\\s/.test(l)){
+      flush(); const items = [];
+      while (i < lines.length && /^[-*]\\s/.test(lines[i])){
+        items.push('<li>' + inline(lines[i].slice(2)) + '</li>'); i++;
+      }
+      html += '<ul>' + items.join('') + '</ul>'; continue;
+    }
+    else if (l.trim() === ''){ flush(); }
+    else { para.push(l); }
+    i++;
+  }
+  flush(); return html;
+}
 async function view(name, title){
   const modal = document.getElementById('modal');
+  const body = document.getElementById('v-body');
   document.getElementById('v-title').textContent = title;
   document.getElementById('v-raw').href = '/file/__CASE__/' + name;
-  document.getElementById('v-body').textContent = 'loading…';
+  body.className = 'vbody'; body.textContent = 'loading…';
   modal.classList.add('open');
   const text = await (await fetch('/file/__CASE__/' + name)).text();
+  if (name.endsWith('.md')){
+    body.className = 'vbody doc';
+    body.innerHTML = mdToHtml(text);
+    return;
+  }
   let pretty = text;
   try{
     if (name.endsWith('.json')) pretty = JSON.stringify(JSON.parse(text), null, 2);
@@ -359,7 +414,8 @@ async function view(name, title){
         .map(l => JSON.stringify(JSON.parse(l), null, 2))
         .join('\\n\\n────────────────────\\n\\n');
   }catch(e){}
-  document.getElementById('v-body').textContent = pretty;
+  body.className = 'vbody mono';
+  body.textContent = pretty;
 }
 </script>"""
 

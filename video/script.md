@@ -20,16 +20,20 @@ dataset. Wrong docs cause silent bugs: filters that match zero rows, models
 trained on categories nobody documented. I built DocDrift to check the docs
 against the data, with proof."
 
-## 0:25 to 0:45 — start the live run [E3 begins]
+## 0:25 to 0:45 — start the live race [E3 begins, E2 begins]
 
 On screen: click "From Kaggle", type
-`uciml/red-wine-quality-cortez-et-al-2009`, press "Fetch and run the audit".
-Wait for "found 24 claims in the documentation" and the first log lines.
+`uciml/red-wine-quality-cortez-et-al-2009`, leave the comparison box checked,
+press "Fetch and run the audit". The split view appears: DocDrift on the
+left, "Just asking the AI" on the right. Unfold "See the exact prompt" for a
+second so viewers see nothing is hidden.
 
-Say: "This is a real, popular Kaggle dataset. DocDrift just pulled its actual
-description, the one thousands of people have read, and found 24 claims in
-it. Now watch the log: every claim is being checked against the full file,
-live."
+Say: "This is a real, popular Kaggle dataset. Two things just started side by
+side. On the right, the same model gets one plain prompt with the
+documentation, the column types, and the first 50 rows; that is what asking
+AI directly looks like, and the exact prompt is right there. On the left,
+DocDrift starts reading the same documentation and checking every claim
+against the full file, live."
 
 ## 0:45 to 2:15 — the 90 second explainer, while it runs
 
@@ -67,23 +71,34 @@ Sampling turns blindness into confidence, so it went in the bin."
 
 ## 2:15 to 3:15 — the result [E3 ends, E4 on this dataset]
 
-On screen: the result page loads. Point at the stat tiles, then the violated
-row. Open the check ledger in the viewer for a few seconds.
+Note: around the 90 second mark the right panel finishes first, "Answered in
+83s". Point at it briefly during the explainer: "opinions are fast." Then the
+result page loads with the two panels and the claim by claim table.
 
-Say: "Done, about two minutes. Nineteen claims verified, and here is the
-catch: the documentation describes wine quality as a 10 point scale, but in
-all 1,599 rows only the scores 3 through 8 ever appear. Note the precision:
-the claim that scores sit between 0 and 10 correctly holds, while the
-10 point scale claim is violated, two readings of the same sentence, each
-judged exactly as written, with the computed values right there.
+Say: "Done. Both sides found exactly one violation each, but look closer,
+because they are not the same violation and not the same kind of answer.
 
-I asked AI directly about this same card, twice. The plain prompt called the
-scale claim 'unverifiable'. The version with full summary statistics missed
-it completely. Neither can execute a check, so neither can prove anything.
-This is the difference between an opinion and an audit."
+DocDrift's catch is the real one: the documentation calls wine quality a
+10 point scale, but across all 1,599 rows only six values exist, 3 through
+8. There is the computed proof, on the first row of the table. The direct
+ask looked at the very same sentence and set it aside.
 
-Optional 10 seconds: click into the evidence viewer to show one ledger entry
-with the check source and mutation test results.
+The direct ask's one violation is about packaging: the card mentions two
+datasets and this download is one file. Fair observation, and DocDrift set
+that one aside because no amount of reading this file proves what other
+files exist.
+
+Now the part that matters. The direct ask marked 15 claims as holding, but
+scroll the right column: it verified the class imbalance claim from, quote,
+'the 50 visible rows'. It verified the 0 to 10 range from four values it
+happened to see. It even marked a line of tutorial advice as 'holds'. Every
+one of DocDrift's 13 verified claims, in the left column, carries a value
+computed over the full file by a check that first had to prove it could
+catch a violation. Same model, same card: opinions on one side, an audit on
+the other."
+
+Optional 10 seconds: click "report" to show the rendered audit, or "check
+ledger" for one entry with the check source and mutation test results.
 
 ## 3:15 to 3:45 — one more real catch, prerecorded or screenshot
 
@@ -110,8 +125,12 @@ agent trajectory. Thanks for watching."
 ## Recording checklist
 
 - [ ] Server running with DOCDRIFT_MODEL=opus, page zoomed to ~125%.
-- [ ] Do one throwaway wine run first so you know the timing, then delete
-      `runs/web_*` leftovers if you want a clean log, and record the second.
+- [ ] Comparison box CHECKED, so the split race view appears.
+- [ ] Do one throwaway wine run first so you know the timing, then record the
+      second run clean.
 - [ ] Terminal not needed on screen; the UI carries the whole demo.
 - [ ] Keep the log visible during the explainer; it proves the run is live.
+- [ ] Reference numbers from the rehearsal run, in case a retake differs
+      slightly: DocDrift 1 violated, 13 hold, 13 set aside, 111s; direct ask
+      1 violated, 15 hold, 17 set aside, 83s. Speak to what is on screen.
 - [ ] Two takes, keep the tighter one, confirm under 5:00.
