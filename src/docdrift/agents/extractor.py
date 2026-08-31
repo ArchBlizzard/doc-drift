@@ -34,6 +34,11 @@ Rules:
 - "quoted_span" MUST be an EXACT character-for-character substring of the card that states the \
 claim. Never paraphrase, re-punctuate, merge sentences, or fix typos.
 - One entry per distinct assertion; a sentence can contain several claims.
+- A stated scale or count of levels is its own claim, separate from a bounds claim: \
+"score between 0 and 10" is a range claim about bounds, while "a 10 point scale" or \
+"takes 12 values" is a category_set claim {"column": ..., "count": N} asserting the data \
+actually shows N distinct levels. Extract the scale claim even when the sentence is advice, \
+like "turn the 10 point scale into a binary variable".
 - Extract EVERY claim, including ones you suspect are false — judging comes later.
 
 "params" MUST carry the claim's machine-readable content — verification fixtures are built from \

@@ -141,7 +141,8 @@ def test_compare_mode_side_by_side(client, tmp_path, monkeypatch):
     assert "See the exact prompt" in result.text
     # the matched claim shows both verdicts on one row; the extra one is listed apart
     assert "did not mention this claim" in result.text or "unverifiable" in result.text
-    assert "set aside as not checkable" in result.text
+    assert "gave opinions on" in result.text
+    assert "chip op" in result.text  # the AI column is visually an opinion, not a verdict
 
 
 def test_access_code_gate(client, monkeypatch):

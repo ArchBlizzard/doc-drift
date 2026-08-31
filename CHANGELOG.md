@@ -178,6 +178,14 @@ properties, not model properties. Sonnet stays the default on billed-cost
 grounds; Opus is the documented quality ceiling.
 [results/ablation_opus.md](results/ablation_opus.md).
 
+## Post-final note — v0.3.1 extractor clarification (Aug 31)
+
+One rule added to the extractor prompt after a demo run showed extraction
+variance: a stated scale ("a 10 point scale") is now always extracted as a
+distinct-level claim, separate from the bounds claim ("between 0 and 10").
+Two of three earlier demo runs extracted it on their own; this pins it. The
+benchmark tables in `results/` are from v0.3.0 and are not restated.
+
 ## Final (T030)
 
 The complete four-system comparison on the full suite:

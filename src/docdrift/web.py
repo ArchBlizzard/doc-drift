@@ -103,6 +103,7 @@ tbody tr:hover{background:color-mix(in srgb, var(--accent) 5%, transparent)}
 .chip.violated{background:var(--bad);color:var(--bad-ink)}
 .chip.holds{background:var(--ok);color:var(--ok-ink)}
 .chip.unverifiable{background:var(--gray);color:var(--gray-ink)}
+.chip.op{background:transparent;border:1.5px dashed currentColor;opacity:.75}
 .stats{display:flex;gap:.6rem;flex-wrap:wrap;margin:.4rem 0 1rem}
 .stat{background:var(--bg);border-radius:12px;padding:.6rem 1rem;text-align:center}
 .stat b{display:block;font-size:1.3rem}
@@ -728,9 +729,12 @@ REASON_WORDS = {
 }
 
 
-def _chip(verdict: str, reason: str | None = None) -> str:
+def _chip(verdict: str, reason: str | None = None, opinion: bool = False) -> str:
     label = "set aside" if verdict == "unverifiable" else verdict
-    chip = f"<span class='chip {verdict}'>{label}</span>"
+    if opinion:
+        label = "says " + label
+    cls = f"chip op {verdict}" if opinion else f"chip {verdict}"
+    chip = f"<span class='{cls}'>{label}</span>"
     if reason:
         chip += f"<br><span class='dim'>{REASON_WORDS.get(reason, reason)}</span>"
     return chip
@@ -795,7 +799,8 @@ async def result_page(request: Request) -> HTMLResponse:
             if b is None:
                 b_cell = "<span class='dim'>did not mention this claim</span>"
             else:
-                b_cell = _chip(b.verdict.value, b.reason.value if b.reason else None)
+                b_cell = _chip(b.verdict.value, b.reason.value if b.reason else None,
+                               opinion=True)
                 if b.computed:
                     b_cell += f"<br><span class='muted'>{b.computed}</span>"
             rows.append(
@@ -806,15 +811,17 @@ async def result_page(request: Request) -> HTMLResponse:
         extra = ""
         if leftovers:
             items = "".join(
-                f"<li>{b.quoted_span} {_chip(b.verdict.value, b.reason.value if b.reason else None)}</li>"
+                f"<li>{b.quoted_span} "
+                f"{_chip(b.verdict.value, b.reason.value if b.reason else None, opinion=True)}</li>"
                 for b in leftovers)
-            extra = (f"<p class='muted'>The direct ask also commented on "
-                     f"{len(leftovers)} passage(s) DocDrift set aside as not checkable "
-                     f"against this file:</p><ul class='muted'>{items}</ul>")
+            extra = (f"<p class='muted'>The direct ask also gave opinions on "
+                     f"{len(leftovers)} other passage(s):</p><ul class='muted'>{items}</ul>")
         table_card = (
             f"<div class='card scroll'><h2>Claim by claim</h2>"
             f"<table><thead><tr><th>Claim from the card</th>"
-            f"<th>With DocDrift</th><th>Just asking the AI</th></tr></thead>"
+            f"<th>With DocDrift<br><span class='dim'>checked on the full file</span></th>"
+            f"<th>Just asking the AI<br><span class='dim'>opinions, no checks run</span></th>"
+            f"</tr></thead>"
             f"<tbody>{''.join(rows)}</tbody></table>{extra}")
     else:
         duel = (
