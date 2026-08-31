@@ -223,7 +223,7 @@ DOCDRIFT_PANEL = """<div style="display:flex;align-items:baseline;justify-conten
 
 JOB_BODY = f'<div class="card">{DOCDRIFT_PANEL}</div>'
 
-JOB_BODY_COMPARE = """<div class="duel" style="align-items:start">
+JOB_BODY_COMPARE = """<div class="duel">
 <div class="card" style="margin:0"><h3 style="margin:0 0 .6rem">With DocDrift</h3>
 __PANEL__
 </div>
@@ -665,9 +665,27 @@ def _match_baseline(agent_claims, baseline_claims) -> tuple[dict[int, object], l
     return matched, leftovers
 
 
+REASON_WORDS = {
+    "prose": "about origin or purpose, not checkable against the file",
+    "check_failed": "no check earned trust for this claim",
+    "execution_error": "the check crashed on the file",
+}
+
+
 def _chip(verdict: str, reason: str | None = None) -> str:
-    label = verdict + (f" ({reason})" if reason else "")
-    return f"<span class='chip {verdict}'>{label}</span>"
+    label = "set aside" if verdict == "unverifiable" else verdict
+    chip = f"<span class='chip {verdict}'>{label}</span>"
+    if reason:
+        chip += f"<br><span class='dim'>{REASON_WORDS.get(reason, reason)}</span>"
+    return chip
+
+
+VERDICT_ORDER = {"violated": 0, "holds": 1, "unverifiable": 2}
+
+
+def _by_importance(claims):
+    """Violations first, verified claims next, set-aside prose last."""
+    return sorted(enumerate(claims), key=lambda p: VERDICT_ORDER[p[1].verdict.value])
 
 
 async def result_page(request: Request) -> HTMLResponse:
@@ -716,7 +734,7 @@ async def result_page(request: Request) -> HTMLResponse:
             f"<details><summary>See the exact prompt it was given</summary>"
             f"<pre>{prompt}</pre></details></div></div>")
         rows = []
-        for i, c in enumerate(out.claims):
+        for i, c in _by_importance(out.claims):
             b = matched.get(i)
             if b is None:
                 b_cell = "<span class='dim'>did not mention this claim</span>"
@@ -753,7 +771,7 @@ async def result_page(request: Request) -> HTMLResponse:
             f"<p class='muted'>{counts['violated']} violated, {counts['holds']} hold, "
             f"{counts['unverifiable']} unverifiable.</p>")
         rows = []
-        for c in out.claims:
+        for _, c in _by_importance(out.claims):
             rows.append(f"<tr><td>{c.quoted_span}</td>"
                         f"<td>{_chip(c.verdict.value, c.reason.value if c.reason else None)}</td>"
                         f"<td><code>{c.computed or '-'}</code></td></tr>")
