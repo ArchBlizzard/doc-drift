@@ -129,7 +129,14 @@ def test_compare_mode_side_by_side(client, tmp_path, monkeypatch):
     started = client.post("/audit", files={"data": ("tiny.csv", b"a,b\n1,2\n", "text/csv")},
                           data={"card_text": CARD, "compare": "1"}, follow_redirects=False)
     case_id = started.headers["location"].rsplit("/", 1)[1]
+    # the live page shows both processes racing side by side
+    live = client.get(f"/job/{case_id}")
+    assert "With DocDrift" in live.text and "Just asking the AI" in live.text
+    assert "See the exact prompt" in live.text
     result = client.get(wait_for_result(client, case_id))
+    state = client.get(f"/api/job/{case_id}").json()
+    assert state["baseline"]["state"] == "done"
+    assert state["baseline"]["counts"]["holds"] == 1
     assert "With DocDrift" in result.text and "Just asking the AI" in result.text
     assert "See the exact prompt" in result.text
     # the matched claim shows both verdicts on one row; the extra one is listed apart

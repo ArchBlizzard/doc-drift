@@ -213,15 +213,28 @@ drop.addEventListener('drop', e => {
   if (e.dataTransfer.files.length){ file.files = e.dataTransfer.files; show(file.files[0].name); }});
 </script>"""
 
-JOB_BODY = """<div class="card">
-<div style="display:flex;align-items:baseline;justify-content:space-between">
+DOCDRIFT_PANEL = """<div style="display:flex;align-items:baseline;justify-content:space-between">
   <h2 id="stage" style="margin:0">Reading the documentation…</h2>
   <span class="pct" id="pct"></span>
 </div>
 <div class="bar wait" id="bar"><i id="fill"></i></div>
 <p class="muted" id="detail">Finding every claim the card makes about the data.</p>
-<div class="log" id="log" hidden></div>
-</div>"""
+<div class="log" id="log" hidden></div>"""
+
+JOB_BODY = f'<div class="card">{DOCDRIFT_PANEL}</div>'
+
+JOB_BODY_COMPARE = """<div class="duel" style="align-items:start">
+<div class="card" style="margin:0"><h3 style="margin:0 0 .6rem">With DocDrift</h3>
+__PANEL__
+</div>
+<div class="card" style="margin:0"><h3 style="margin:0 0 .6rem">Just asking the AI</h3>
+<div class="bar wait" id="b-bar"><i id="b-fill"></i></div>
+<p class="muted" id="b-detail">One message to the same model: the documentation, the
+column types, and the first 50 rows. No code, no full-file access.</p>
+<div class="log" id="b-log" hidden></div>
+<details><summary>See the exact prompt it was given</summary>
+<pre>__PROMPT__</pre></details>
+</div></div>""".replace("__PANEL__", DOCDRIFT_PANEL)
 
 JOB_SCRIPT = """<script>
 const jobId = "__JOB_ID__";
@@ -285,6 +298,29 @@ async function tick(){
       addLog(line);
     });
     shown = (s.events || []).length;
+    const b = s.baseline || {};
+    const bBar = document.getElementById('b-bar');
+    if (bBar && b.requested){
+      const bDetail = document.getElementById('b-detail');
+      const bLog = document.getElementById('b-log');
+      if (b.state === 'waiting'){
+        bDetail.textContent = 'Prompt sent. Waiting for the answer… ' + s.elapsed + 's';
+      } else if (b.state === 'done' && !bBar.dataset.done){
+        bBar.dataset.done = '1';
+        bBar.classList.remove('wait');
+        document.getElementById('b-fill').style.width = '100%';
+        bDetail.textContent = 'Answered in ' + b.wall_s + 's. Waiting for DocDrift to finish.';
+        bLog.hidden = false;
+        bLog.innerHTML = '<div>judged <b>' + b.claims + '</b> claims from one prompt: '
+          + '<b class="v">' + b.counts.violated + ' violated</b>, '
+          + '<b class="h">' + b.counts.holds + ' hold</b>, '
+          + b.counts.unverifiable + ' set aside</div>'
+          + '<div class="dim">no checks were run; these are reading-based opinions</div>';
+      } else if (b.state === 'failed'){
+        bBar.classList.remove('wait');
+        bDetail.textContent = 'The direct ask failed: ' + b.error;
+      }
+    }
     if (s.state === 'done'){
       finished = true;
       document.getElementById('pct').textContent = '100%';
@@ -335,6 +371,7 @@ class Job:
     task: asyncio.Task | None = field(default=None, repr=False)
     fetching: bool = False      # Kaggle download still in progress
     compare: bool = False       # also run the ask-AI-directly baseline
+    baseline_error: str | None = None
     kaggle_ref: str = ""
     started: float = 0.0
 
@@ -423,11 +460,11 @@ async def _run_job(job: Job) -> None:
         if job.compare:
             work.append(_run_baseline(job.case_id, _model()))
         results = await asyncio.gather(*work, return_exceptions=True)
-        agent_error = results[0] if isinstance(results[0], BaseException) else None
-        if agent_error is not None:
-            raise agent_error
-        # a failed comparison run never sinks the audit; the result page
-        # simply shows the audit alone
+        if job.compare and len(results) > 1 and isinstance(results[1], BaseException):
+            # a failed comparison run never sinks the audit
+            job.baseline_error = f"{type(results[1]).__name__}: {results[1]}"
+        if isinstance(results[0], BaseException):
+            raise results[0]
     except Exception as exc:  # shown on the progress page
         job.fetching = False
         job.error = f"{type(exc).__name__}: {exc}"
@@ -566,16 +603,39 @@ async def job_api(request: Request) -> JSONResponse:
         "inflight": _inflight(case_id, _settled_ids(case_id)) if total else 0,
         "elapsed": round(time.time() - job.started) if job.started else 0,
         "compare": job.compare,
-        "baseline_done": (RUNS_DIR / case_id / "baseline" / "verdicts.json").is_file(),
+        "baseline": _baseline_status(job),
         "events": events,
     })
 
 
+def _baseline_status(job: Job) -> dict:
+    if not job.compare:
+        return {"requested": False}
+    if job.baseline_error:
+        return {"requested": True, "state": "failed", "error": job.baseline_error}
+    verdicts = RUNS_DIR / job.case_id / "baseline" / "verdicts.json"
+    if not verdicts.is_file():
+        return {"requested": True, "state": "waiting"}
+    out = json.loads(verdicts.read_text(encoding="utf-8"))
+    counts = {v: sum(1 for c in out["claims"] if c["verdict"] == v)
+              for v in ("violated", "holds", "unverifiable")}
+    return {"requested": True, "state": "done", "wall_s": round(out["wall_s"]),
+            "claims": len(out["claims"]), "counts": counts}
+
+
 async def job_page(request: Request) -> HTMLResponse:
     case_id = request.path_params["case_id"]
-    if case_id not in JOBS:
+    job = JOBS.get(case_id)
+    if job is None:
         return HTMLResponse(_page("<div class='card'>Unknown job.</div>"), status_code=404)
-    return HTMLResponse(_page(JOB_BODY, JOB_SCRIPT.replace("__JOB_ID__", case_id)))
+    if job.compare:
+        import run_baseline
+        prompt = (run_baseline.SYSTEM_PROMPT.replace("&", "&amp;")
+                  .replace("<", "&lt;").replace(">", "&gt;"))
+        body = JOB_BODY_COMPARE.replace("__PROMPT__", prompt)
+    else:
+        body = JOB_BODY
+    return HTMLResponse(_page(body, JOB_SCRIPT.replace("__JOB_ID__", case_id)))
 
 
 def _overlap(a, b) -> float:
