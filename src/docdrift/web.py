@@ -272,9 +272,16 @@ def _kaggle_fetch(ref: str, case_dir: Path) -> None:
     (case_dir / "datacard.md").write_text(description, encoding="utf-8", newline="\n")
 
 
+def _model() -> str:
+    """Pipeline model for web audits. Set DOCDRIFT_MODEL=opus for the highest
+    quality (see results/ablation_opus.md); default follows the project's
+    documented default."""
+    return os.environ.get("DOCDRIFT_MODEL", MODEL_AGENT)
+
+
 async def _run_job(job: Job) -> None:
     try:
-        await orchestrator.run_case(job.case_id, model=MODEL_AGENT)
+        await orchestrator.run_case(job.case_id, model=_model())
     except Exception as exc:  # shown on the progress page
         job.error = f"{type(exc).__name__}: {exc}"
 
