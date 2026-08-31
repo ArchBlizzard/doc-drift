@@ -16,7 +16,7 @@ COPY pyproject.toml ./
 COPY src ./src
 RUN pip install --no-cache-dir -e .
 
-COPY run_web.py lessons.md ./
+COPY run_web.py run_baseline.py lessons.md ./
 
 # Render sets PORT itself. HOST must be 0.0.0.0 so the outside world reaches it.
 ENV HOST=0.0.0.0

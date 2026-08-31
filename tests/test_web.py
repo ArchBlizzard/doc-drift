@@ -106,6 +106,37 @@ def test_unknown_job_404(client):
     assert client.get("/result/web_nope_000000").status_code == 404
 
 
+def test_compare_mode_side_by_side(client, tmp_path, monkeypatch):
+    from docdrift import web
+
+    async def fake_baseline(case_id, model):
+        b_dir = tmp_path / "runs" / case_id / "baseline"
+        b_dir.mkdir(parents=True)
+        out = SystemOutput(
+            case_id=case_id, system="baseline", model_id="claude-test-1",
+            claims=[
+                # same span as the agent's violated claim, but judged unverifiable
+                {"quoted_span": "The table holds 2 rows.", "span_start": 0, "span_end": 23,
+                 "verdict": "unverifiable", "reason": "prose"},
+                # a passage the agent never extracted
+                {"quoted_span": "Collected somewhere else entirely.", "verdict": "holds",
+                 "claimed": "x", "computed": "x"},
+            ],
+            usage={"input_tokens": 40, "output_tokens": 20}, wall_s=2.0)
+        (b_dir / "verdicts.json").write_text(out.model_dump_json(), encoding="utf-8")
+
+    monkeypatch.setattr(web, "_run_baseline", fake_baseline)
+    started = client.post("/audit", files={"data": ("tiny.csv", b"a,b\n1,2\n", "text/csv")},
+                          data={"card_text": CARD, "compare": "1"}, follow_redirects=False)
+    case_id = started.headers["location"].rsplit("/", 1)[1]
+    result = client.get(wait_for_result(client, case_id))
+    assert "With DocDrift" in result.text and "Just asking the AI" in result.text
+    assert "See the exact prompt" in result.text
+    # the matched claim shows both verdicts on one row; the extra one is listed apart
+    assert "did not mention this claim" in result.text or "unverifiable" in result.text
+    assert "set aside as not checkable" in result.text
+
+
 def test_access_code_gate(client, monkeypatch):
     monkeypatch.setenv("DOCDRIFT_ACCESS_CODE", "sesame")
     blocked = client.post("/audit", files={"data": ("t.csv", b"a\n1\n", "text/csv")},
