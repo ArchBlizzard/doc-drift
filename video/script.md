@@ -1,136 +1,136 @@
 # Video script (target 4:30, hard cap 5:00)
 
-Format: one screen recording of the web UI (http://127.0.0.1:8787, server
-started with DOCDRIFT_MODEL=opus). The centerpiece is a LIVE Kaggle audit
-from fetch to finish. The audit takes about 2 minutes, which gives you ~90
-seconds of talking time while the progress log scrolls.
+One screen recording of the web UI (http://127.0.0.1:8787, server started
+with DOCDRIFT_MODEL=opus, comparison box checked). The centerpiece is a live
+Kaggle audit racing a plain AI prompt, side by side. The audit takes about
+2 minutes, which is the talking window.
 
-All six required elements are marked [E1]..[E6]:
-problem, baseline, live run, final comparison, changelog highlight, removed
-experiment.
+Spoken lines are written in Anchit's voice per ~/.claude/anchit-voice.md:
+task first, flat verdicts with one checked number each, "so" as connector,
+before and after phrasing, close on what is left. Speak to what is on
+screen; if a retake shows slightly different numbers, say those.
+
+Required elements marked [E1]..[E6]: problem, baseline, live run, final
+comparison, changelog highlight, removed experiment.
 
 ## 0:00 to 0:25 — the problem [E1]
 
 On screen: the DocDrift home page.
 
-Say: "Every dataset ships with documentation that makes claims: no missing
-values, twelve categories, scores from 0 to 10. That documentation is often
-wrong, and nobody checks, because checking means half an hour of pandas per
-dataset. Wrong docs cause silent bugs: filters that match zero rows, models
-trained on categories nobody documented. I built DocDrift to check the docs
-against the data, with proof."
+Say: "So the problem I picked is simple. Every dataset comes with a README
+that makes claims, like no missing values, or scores from 0 to 10. Nobody
+checks those claims, because checking is half an hour of pandas per dataset.
+And wrong docs cause silent bugs, like a filter that matches zero rows and
+nobody notices. So I built DocDrift. It checks the docs against the actual
+data, and it shows proof for every verdict."
 
-## 0:25 to 0:45 — start the live race [E3 begins, E2 begins]
+## 0:25 to 0:45 — start the race [E2 and E3 begin]
 
 On screen: click "From Kaggle", type
-`uciml/red-wine-quality-cortez-et-al-2009`, leave the comparison box checked,
-press "Fetch and run the audit". The split view appears: DocDrift on the
-left, "Just asking the AI" on the right. Unfold "See the exact prompt" for a
-second so viewers see nothing is hidden.
+`uciml/red-wine-quality-cortez-et-al-2009`, comparison box stays checked,
+press "Fetch and run the audit". The split view appears. Unfold "See the
+exact prompt" on the right for a second.
 
-Say: "This is a real, popular Kaggle dataset. Two things just started side by
-side. On the right, the same model gets one plain prompt with the
-documentation, the column types, and the first 50 rows; that is what asking
-AI directly looks like, and the exact prompt is right there. On the left,
-DocDrift starts reading the same documentation and checking every claim
-against the full file, live."
+Say: "So this is a real Kaggle dataset, the red wine one, and all I gave it
+is the name. Two things just started side by side. The right side is just
+asking the AI, one prompt with the docs, the column types and the first 50
+rows, and the exact prompt is right here, nothing hidden. The left side is
+DocDrift, and you can see it found the claims, the count is on screen. Now
+it checks every one of them against the full file, live."
 
-## 0:45 to 2:15 — the 90 second explainer, while it runs
+## 0:45 to 2:15 — the talking window, while both run
 
-Keep the progress log visible. Speak over it; point at log lines when a
-green "holds" or a rewrite note appears.
+Keep the log visible. Around 90 seconds the right panel finishes first;
+point at it when it does.
 
-Say: "How it works: each claim becomes a small Python check. Here is the
-trick that makes this trustworthy: before any check is trusted, DocDrift
-builds two tiny fake datasets, one that satisfies the claim and one that
-breaks it, and the check must pass the first and fail the second. A check
-that cannot catch a violation is thrown out and rewritten. You can see those
-rewrite notes in the log. Only trusted checks run against the full file, and
-every verdict ships with the computed value as proof.
+Say: "Now coming to the implementation. Every claim becomes a small Python
+check. And the main thing is the mutation test on those checks. What
+happened before was the AI would write a check that always passes, it looks
+green but it can catch nothing. What happens now is DocDrift builds two tiny
+fake tables, one that follows the claim and one that breaks it, and the
+check has to pass the first and fail the second before anyone trusts it.
+Fails that, it gets one rewrite, and you can see those rewrite notes in the
+log. I measured it on my benchmark, 12 datasets where I planted 41 wrong
+claims on purpose, and about 1 in 13 first drafts failed their own mutation
+test, counted from the gate logs.
 
-Why not just ask AI directly? I measured that. [E2] On my benchmark, twelve
-datasets with 41 planted documentation lies, the plain ask-the-model approach
-caught 11 and confidently 'verified' lies it could not see; one time it
-verified a row count because it 'matches the known dataset size' while the
-file had different data. The strongest single prompt I could build, with full
-summary statistics in context, caught 38 but still handed out two false
-certificates. [E4] DocDrift also caught 38, with zero false certificates:
-where it cannot verify, it says so instead of guessing. On the hardest test,
-a million-row file whose two violations hide after row 810,000 where no
-sample or summary statistic can see them, DocDrift went nine for nine while
-the strongest baseline missed both.
+So, is this better than just asking AI. I tested that with the same claims
+and the same scorer. Just asking caught 11 of the 41 planted lies, and it
+also said verified on things it never computed. The strongest prompt I could
+build caught 38, but it gave 2 false certificates. DocDrift also caught 38,
+with zero false certificates, and that zero is the whole product. Where it
+cannot verify, it says so instead of guessing. And on the hardest test, a
+million row file where both violations hide after row 810,000, DocDrift
+caught both, the strongest prompt caught neither.
 
-[E5] The change that mattered most, from my changelog: that mutation test of
-the checks themselves. About one in thirteen first drafts would have returned
-green while being unable to fail. Testing the verifier is the whole product.
+One experiment I threw away: instead of running code I stuffed 1,800 sampled
+rows into the prompt. It cost 15 times the tokens and handed out 8 false
+certificates, so it went in the bin.
 
-[E6] And one experiment I removed: instead of running code, I tried stuffing
-1,800 sampled rows into the prompt. It cost fifteen times the tokens, and it
-certified whatever its samples happened to miss, eight false certificates.
-Sampling turns blindness into confidence, so it went in the bin."
+(when the right panel finishes) And see, the AI side is already done, took
+around 80 seconds. Opinions are fast."
+
+[E2, E4, E5, E6 all land in this block: the direct ask, the benchmark
+comparison, the mutation gate as the change that mattered most, and the
+removed sampling experiment.]
 
 ## 2:15 to 3:15 — the result [E3 ends, E4 on this dataset]
 
-Note: around the 90 second mark the right panel finishes first, "Answered in
-83s". Point at it briefly during the explainer: "opinions are fast." Then the
-result page loads with the two panels and the claim by claim table.
+On screen: the result page with two panels and the claim by claim table.
+The violated row sits on top.
 
-Say: "Done. Both sides found exactly one violation each, but look closer,
-because they are not the same violation and not the same kind of answer.
+Say: "Done. So both sides found exactly one violation, but not the same one,
+and not the same kind of answer.
 
-DocDrift's catch is the real one: the documentation calls wine quality a
-10 point scale, but across all 1,599 rows only six values exist, 3 through
-8. There is the computed proof, on the first row of the table. The direct
-ask looked at the very same sentence and set it aside.
+DocDrift's catch is the real one. The docs call wine quality a 10 point
+scale. The check ran on all 1,599 rows and found only six values, 3 to 8.
+The proof is right there in the first row. The AI read the same sentence and
+set it aside.
 
-The direct ask's one violation is about packaging: the card mentions two
-datasets and this download is one file. Fair observation, and DocDrift set
-that one aside because no amount of reading this file proves what other
-files exist.
+The AI's one catch is about packaging, the docs mention two datasets and
+this download is one file. Fair point, and DocDrift set that one aside on
+purpose, because reading this file cannot prove what other files exist.
 
-Now the part that matters. The direct ask marked 15 claims as holding, but
-scroll the right column: it verified the class imbalance claim from, quote,
-'the 50 visible rows'. It verified the 0 to 10 range from four values it
-happened to see. It even marked a line of tutorial advice as 'holds'. Every
-one of DocDrift's 13 verified claims, in the left column, carries a value
-computed over the full file by a check that first had to prove it could
-catch a violation. Same model, same card: opinions on one side, an audit on
-the other."
+Now the part I want you to see. Scroll the right column. The AI marked 15
+claims as holding, and in its own words it verified the class balance claim
+from the 50 visible rows. Fifty rows out of 1,599. Every verdict on the left
+has a value computed on the full file by a check that passed its own
+mutation test first. Same model, same docs. One side is opinions, the other
+side is an audit."
 
 Optional 10 seconds: click "report" to show the rendered audit, or "check
-ledger" for one entry with the check source and mutation test results.
+ledger" for one entry with the check source and mutation results.
 
-## 3:15 to 3:45 — one more real catch, prerecorded or screenshot
+## 3:15 to 3:45 — one more real catch
 
 On screen: trajectories/kaggle_kicker/audit.md, the telephone finding.
 
-Say: "It finds real drift elsewhere too. On the 1994 German Credit dataset,
-the documentation says telephone is yes or no; the data actually encodes
-none or yes. Thirty years of users, and any filter on 'no' silently matches
-zero rows. And when documentation is correct, like the iris dataset,
-DocDrift certifies it with computed proof instead of finding fake problems."
+Say: "It finds real drift outside my benchmark too. On the 1994 German
+credit dataset, the docs say telephone is yes or no, the data says none and
+yes. I checked that by running the audit on the untouched docs, the trace is
+in the repo. So any filter on no matches zero rows, and that doc has been
+wrong for thirty years. And when docs are right, like the iris dataset, it
+says so with proof, 50 samples per species, counted."
 
-## 3:45 to 4:15 — close, the hot take
+## 3:45 to 4:15 — close, on what is left
 
 On screen: results/final.md table.
 
-Say: "The lesson I would give anyone building agents: a verifier you have
-not tried to fool is just another generator. Mutation-test your agent's
-checks. That one idea turned an LLM that writes pandas into an auditor whose
-worst behavior is saying 'I could not verify this', and never 'verified'
-when it should not. Everything here is reproducible from a clean machine
-with one config file: the repo has the benchmark, the baselines, and every
-agent trajectory. Thanks for watching."
+Say: "So the one thing I would tell anyone building agents: a checker you
+have not tried to fool is just another guesser. Mutation test your agent's
+checks. That single idea is why this tool's worst behavior is saying it
+could not verify something, and never saying verified when it should not.
+Everything runs from a clean machine, the repo has the benchmark, the
+baselines and every trace. What is left: wiring this into CI so docs get
+checked on every push, and putting the hosted version behind an access code.
+Thanks."
 
 ## Recording checklist
 
-- [ ] Server running with DOCDRIFT_MODEL=opus, page zoomed to ~125%.
-- [ ] Comparison box CHECKED, so the split race view appears.
-- [ ] Do one throwaway wine run first so you know the timing, then record the
-      second run clean.
-- [ ] Terminal not needed on screen; the UI carries the whole demo.
-- [ ] Keep the log visible during the explainer; it proves the run is live.
-- [ ] Reference numbers from the rehearsal run, in case a retake differs
-      slightly: DocDrift 1 violated, 13 hold, 13 set aside, 111s; direct ask
-      1 violated, 15 hold, 17 set aside, 83s. Speak to what is on screen.
+- [ ] Server on with DOCDRIFT_MODEL=opus, comparison box checked, ~125% zoom.
+- [ ] One throwaway wine run first for timing, record the second run clean.
+- [ ] Keep the log visible during the talking window, it proves the run is live.
+- [ ] Reference numbers from the rehearsal, speak to the screen if a retake
+      differs: DocDrift 1 violated, 13 hold, 13 set aside, 111s; direct ask
+      1 violated, 15 hold, 17 set aside, 83s.
 - [ ] Two takes, keep the tighter one, confirm under 5:00.
