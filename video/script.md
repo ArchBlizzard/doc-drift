@@ -79,24 +79,26 @@ removed sampling experiment.]
 On screen: the result page with two panels and the claim by claim table.
 The violated row sits on top.
 
-Say: "Done. So both sides found exactly one violation, but not the same one,
-and not the same kind of answer.
+Say: "Done. So look at the left side first, the DocDrift side. One violation
+caught, and it is a real one. The docs call wine quality a 10 point scale,
+the check ran on all 1,599 rows and found only six values, 3 to 8, and the
+proof is sitting right there in the first row. Under it, 13 claims verified,
+every column checked on the full file with the computed value next to it.
+That is a report you can act on.
 
-DocDrift's catch is the real one. The docs call wine quality a 10 point
-scale. The check ran on all 1,599 rows and found only six values, 3 to 8.
-The proof is right there in the first row. The AI read the same sentence and
-set it aside.
+Now the right side, just asking the AI. Same model, same docs. It read the
+exact same 10 point scale sentence and set it aside. It missed the only real
+problem in these docs. And its holds are worse than they look, read its own
+words, it verified the class balance claim from the 50 visible rows. Fifty
+rows out of 1,599. That is not checking, that is guessing with confidence.
 
-The AI's one catch is about packaging, the docs mention two datasets and
-this download is one file. Fair point, and DocDrift set that one aside on
-purpose, because reading this file cannot prove what other files exist.
-
-Now the part I want you to see. Scroll the right column. The AI marked 15
-claims as holding, and in its own words it verified the class balance claim
-from the 50 visible rows. Fifty rows out of 1,599. Every verdict on the left
-has a value computed on the full file by a check that passed its own
-mutation test first. Same model, same docs. One side is opinions, the other
-side is an audit."
+And there is a bigger problem with the prompt approach that this small file
+hides. It only works if the data fits in the prompt. This file is 1,599
+rows; my hard case is a million rows, around 25 megabytes, and no context
+window takes that. DocDrift does not care about size, because the model
+never reads the data, the checks run on the file. So on that million row
+test DocDrift caught both hidden violations, and the prompt approach caught
+zero."
 
 Optional 10 seconds: click "report" to show the rendered audit, or "check
 ledger" for one entry with the check source and mutation results.
@@ -112,18 +114,19 @@ in the repo. So any filter on no matches zero rows, and that doc has been
 wrong for thirty years. And when docs are right, like the iris dataset, it
 says so with proof, 50 samples per species, counted."
 
-## 3:45 to 4:15 — close, on what is left
+## 3:45 to 4:15 — close
 
-On screen: results/final.md table.
+On screen: results/final.md table, then back to the result page's violated
+row for the last line.
 
 Say: "So the one thing I would tell anyone building agents: a checker you
 have not tried to fool is just another guesser. Mutation test your agent's
-checks. That single idea is why this tool's worst behavior is saying it
-could not verify something, and never saying verified when it should not.
-Everything runs from a clean machine, the repo has the benchmark, the
-baselines and every trace. What is left: wiring this into CI so docs get
-checked on every push, and putting the hosted version behind an access code.
-Thanks."
+checks. That single idea is why this tool caught 38 of 41 planted lies and
+never once said verified when it should not, and why the strongest prompt I
+could build handed out false certificates instead. Everything you just saw
+runs from a clean machine, the repo has the benchmark, the baselines and
+every trace. So the next time a README tells you the data is clean, do not
+trust it. Audit it. That is DocDrift. Thanks."
 
 ## Recording checklist
 
