@@ -26,6 +26,7 @@ Coding-agent use was required by the hackathon and is disclosed here in full.
 | `kaggle_kicker/` | Real-world run on an UNMODIFIED public data card (OpenML `credit-g`) — two genuine violations found in the 1994 documentation. Nothing planted; see its `PROVENANCE.md`. |
 | `kaggle_iris/` | Second real-world run, via the Kaggle API on the participant's own account: `uciml/iris` (CC0). The complementary outcome — a good card *certified* with computed evidence (50/50/50 species counts, all documented columns verified), prose correctly abstained. |
 | `ideation/` | The planning-stage multi-agent workflow journals: project selection (10 candidate ideas, 3-judge rubric panel) and the 68-finding spec audit. Each line is one agent's full structured return. |
+| `wine_comparison_demo/` | The exact side-by-side run shown in the solution video: DocDrift and the ask-the-AI-directly baseline on the real Kaggle wine card, same model, both sides' full message logs and verdicts. See its README for the punchline. |
 
 Reading order for judges: start at `agent_case_04/audit.md` (the product),
 then `ledger.jsonl` for the same case (how each verdict was earned), then
