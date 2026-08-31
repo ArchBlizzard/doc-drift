@@ -36,7 +36,13 @@ def client(tmp_path, monkeypatch):
         (agent_dir / "audit.md").write_text(
             "# audit\n\n## Executive summary\n\nOne claim is violated.\n\n## Per-claim\n",
             encoding="utf-8")
-        (agent_dir / "ledger.jsonl").write_text("{}\n", encoding="utf-8")
+        entry = {"claim": {"quoted_span": "The table holds 2 rows."},
+                 "verdict_record": {"verdict": "violated", "computed": "3"},
+                 "mutant_results": [{"outcome": "vacuous"}, {"outcome": "gate_passed"}]}
+        (agent_dir / "ledger.jsonl").write_text("{}\n" + json.dumps(entry) + "\n",
+                                                encoding="utf-8")
+        (agent_dir / "claims.json").write_text(json.dumps({"claims": [1, 2]}),
+                                               encoding="utf-8")
 
     monkeypatch.setattr(web.orchestrator, "run_case", fake_run_case)
     with TestClient(web.app) as tc:
@@ -75,6 +81,12 @@ def test_upload_to_result_flow(client):
     case_id = result_url.rsplit("/", 1)[1]
     assert client.get(f"/file/{case_id}/audit.md").status_code == 200
     assert client.get(f"/file/{case_id}/secrets.txt").status_code == 404
+    # evidence opens in the in-page viewer, and the progress api carries the log
+    assert 'id="modal"' in result.text and "view('ledger.jsonl'" in result.text
+    state = client.get(f"/api/job/{case_id}").json()
+    assert state["total"] == 2
+    assert state["events"][0]["verdict"] == "violated"
+    assert "rewritten" in state["events"][0]["gate_note"]
 
 
 def test_missing_card_is_rejected(client):

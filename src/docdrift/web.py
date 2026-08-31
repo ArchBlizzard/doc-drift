@@ -113,6 +113,27 @@ a{color:var(--accent)}
 .error{background:var(--bad);color:var(--bad-ink);border-radius:12px;padding:.8rem 1rem;
   margin-bottom:1rem;font-weight:600}
 .scroll{overflow-x:auto}
+.pct{font-variant-numeric:tabular-nums;font-weight:700;font-size:1.6rem}
+.log{margin-top:1rem;max-height:16rem;overflow-y:auto;border-top:1px solid var(--line);
+  padding-top:.6rem;font-size:.84rem}
+.log div{padding:.22rem 0;color:var(--muted);animation:rise .3s ease both}
+.log b{color:var(--ink);font-weight:600}
+.log .v{color:var(--bad-ink)} .log .h{color:var(--ok-ink)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;
+  align-items:center;justify-content:center;padding:1.2rem;z-index:50}
+.modal.open{display:flex}
+.sheet{background:var(--card);color:var(--ink);border-radius:18px;box-shadow:var(--shadow);
+  width:min(860px,100%);max-height:86vh;display:flex;flex-direction:column;
+  animation:rise .25s ease both}
+.sheet header{display:flex;align-items:center;justify-content:space-between;
+  padding:.9rem 1.2rem;border-bottom:1px solid var(--line)}
+.sheet header b{font-size:.95rem}
+.sheet .x{border:0;background:var(--gray);color:var(--ink);border-radius:980px;
+  width:1.9rem;height:1.9rem;font-size:1rem;cursor:pointer}
+.sheet pre{margin:0;padding:1rem 1.2rem;overflow:auto;white-space:pre-wrap;
+  word-break:break-word;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:.8rem;line-height:1.5}
+.sheet footer{padding:.6rem 1.2rem;border-top:1px solid var(--line);font-size:.82rem}
 </style></head><body><div class="wrap">
 <h1><a href="/">DocDrift</a></h1>
 <p class="tag">Checks whether a dataset's documentation tells the truth.</p>
@@ -173,20 +194,30 @@ drop.addEventListener('drop', e => {
 </script>"""
 
 JOB_BODY = """<div class="card">
-<h2 id="stage">Reading the documentation…</h2>
+<div style="display:flex;align-items:baseline;justify-content:space-between">
+  <h2 id="stage" style="margin:0">Reading the documentation…</h2>
+  <span class="pct" id="pct"></span>
+</div>
 <div class="bar wait" id="bar"><i id="fill"></i></div>
 <p class="muted" id="detail">Finding every claim the card makes about the data.</p>
-<p class="muted">Each claim gets its own check. A check is only trusted after it proves
-it can catch a fake violation. Trusted checks then run against the full file.</p>
+<div class="log" id="log" hidden></div>
 </div>"""
 
 JOB_SCRIPT = """<script>
 const jobId = "__JOB_ID__";
+let shown = 0;
+function addLog(html){
+  const box = document.getElementById('log');
+  box.hidden = false;
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
 async function tick(){
   try{
     const r = await fetch('/api/job/' + jobId);
     const s = await r.json();
-    if (s.state === 'done'){ location.href = '/result/' + jobId; return; }
     if (s.state === 'error'){
       document.getElementById('stage').textContent = 'The audit failed';
       document.getElementById('detail').textContent = s.error;
@@ -194,18 +225,64 @@ async function tick(){
       return;
     }
     if (s.total){
+      const pct = Math.round(100 * s.settled / s.total);
       document.getElementById('stage').textContent = 'Checking claims…';
+      document.getElementById('pct').textContent = pct + '%';
       document.getElementById('detail').textContent =
         s.settled + ' of ' + s.total + ' claims settled';
       const bar = document.getElementById('bar');
       bar.classList.remove('wait');
-      document.getElementById('fill').style.width =
-        Math.round(100 * s.settled / s.total) + '%';
+      document.getElementById('fill').style.width = pct + '%';
+      if (shown === 0 && s.total)
+        addLog('found <b>' + s.total + '</b> claims in the documentation');
+    }
+    (s.events || []).slice(shown).forEach(e => {
+      const cls = e.verdict === 'violated' ? 'v' : (e.verdict === 'holds' ? 'h' : '');
+      let line = '<b class="' + cls + '">' + e.verdict + '</b> · ' + e.claim;
+      if (e.computed) line += ' <b>(' + e.computed + ')</b>';
+      if (e.gate_note) line = e.gate_note + '<br>' + line;
+      addLog(line);
+    });
+    shown = (s.events || []).length;
+    if (s.state === 'done'){
+      document.getElementById('pct').textContent = '100%';
+      document.getElementById('fill').style.width = '100%';
+      addLog('writing the report…');
+      setTimeout(() => location.href = '/result/' + jobId, 700);
+      return;
     }
   }catch(e){}
   setTimeout(tick, 2000);
 }
 tick();
+</script>"""
+
+VIEWER = """<div class="modal" id="modal" onclick="if(event.target===this)closeViewer()">
+<div class="sheet"><header><b id="v-title"></b>
+<button class="x" onclick="closeViewer()" aria-label="Close">✕</button></header>
+<pre id="v-body">loading…</pre>
+<footer><a id="v-raw" href="#" target="_blank">open the raw file</a></footer>
+</div></div>
+<script>
+function closeViewer(){ document.getElementById('modal').classList.remove('open'); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeViewer(); });
+async function view(name, title){
+  const modal = document.getElementById('modal');
+  document.getElementById('v-title').textContent = title;
+  document.getElementById('v-raw').href = '/file/__CASE__/' + name;
+  document.getElementById('v-body').textContent = 'loading…';
+  modal.classList.add('open');
+  const text = await (await fetch('/file/__CASE__/' + name)).text();
+  let pretty = text;
+  try{
+    if (name.endsWith('.json')) pretty = JSON.stringify(JSON.parse(text), null, 2);
+    else if (name.endsWith('.jsonl'))
+      pretty = text.trim().split('\\n')
+        .map(l => JSON.stringify(JSON.parse(l), null, 2))
+        .join('\\n\\n────────────────────\\n\\n');
+  }catch(e){}
+  document.getElementById('v-body').textContent = pretty;
+}
 </script>"""
 
 
@@ -330,15 +407,46 @@ async def audit(request: Request) -> HTMLResponse | RedirectResponse:
     return RedirectResponse(f"/job/{case_id}", status_code=303)
 
 
-def _progress(case_id: str) -> tuple[int, int | None]:
+def _progress(case_id: str) -> tuple[int, int | None, list[dict]]:
+    """Settled count, total claims, and the important events so far.
+
+    Events come straight from the run's own ledger, so the log never invents
+    anything: one line per settled claim, plus a note when a check was
+    rejected by its mutation test and had to be rewritten.
+    """
     agent_dir = RUNS_DIR / case_id / "agent"
     total = None
     claims_file = agent_dir / "claims.json"
     if claims_file.is_file():
         total = len(json.loads(claims_file.read_text(encoding="utf-8"))["claims"])
+    events: list[dict] = []
     ledger = agent_dir / "ledger.jsonl"
-    settled = max(0, len(ledger.read_text(encoding="utf-8").splitlines()) - 1) if ledger.is_file() else 0
-    return settled, total
+    if ledger.is_file():
+        for line in ledger.read_text(encoding="utf-8").splitlines()[1:]:
+            try:
+                entry = json.loads(line)
+            except json.JSONDecodeError:
+                continue  # a line still being written
+            v = entry["verdict_record"]
+            claim_text = entry["claim"]["quoted_span"]
+            if len(claim_text) > 80:
+                claim_text = claim_text[:77] + "…"
+            verdict = v["verdict"] + (f" ({v['reason']})" if v.get("reason") else "")
+            computed = (v.get("computed") or "")
+            if len(computed) > 60:
+                computed = computed[:57] + "…"
+            gate_note = ""
+            rejected = [m for m in entry.get("mutant_results", [])
+                        if m["outcome"] != "gate_passed"]
+            if rejected:
+                gate_note = ("a first check draft failed its mutation test and was rewritten"
+                             if len(entry.get("mutant_results", [])) > len(rejected)
+                             or v["verdict"] != "unverifiable"
+                             else "both check drafts failed their mutation test, so this claim abstains")
+            events.append({"claim": claim_text, "verdict": v["verdict"],
+                           "verdict_full": verdict, "computed": computed,
+                           "gate_note": gate_note})
+    return len(events), total, events
 
 
 async def job_api(request: Request) -> JSONResponse:
@@ -348,10 +456,10 @@ async def job_api(request: Request) -> JSONResponse:
         return JSONResponse({"state": "unknown"}, status_code=404)
     if job.error:
         return JSONResponse({"state": "error", "error": job.error})
-    if (RUNS_DIR / case_id / "agent" / "verdicts.json").is_file() and job.task and job.task.done():
-        return JSONResponse({"state": "done"})
-    settled, total = _progress(case_id)
-    return JSONResponse({"state": "running", "settled": settled, "total": total})
+    settled, total, events = _progress(case_id)
+    done = (RUNS_DIR / case_id / "agent" / "verdicts.json").is_file() and job.task and job.task.done()
+    return JSONResponse({"state": "done" if done else "running",
+                         "settled": settled, "total": total, "events": events})
 
 
 async def job_page(request: Request) -> HTMLResponse:
@@ -396,11 +504,17 @@ async def result_page(request: Request) -> HTMLResponse:
         f"<div class='card scroll'><table><thead><tr><th>Claim from the card</th>"
         f"<th>Verdict</th><th>What the data says</th></tr></thead>"
         f"<tbody>{''.join(rows)}</tbody></table>"
-        f"<p class='muted'>Full evidence: <a href='/file/{case_id}/audit.md'>report</a> · "
-        f"<a href='/file/{case_id}/ledger.jsonl'>check ledger</a> · "
-        f"<a href='/file/{case_id}/verdicts.json'>raw verdicts</a></p></div>"
+        f"<p class='muted'>Full evidence: "
+        f"<a href='/file/{case_id}/audit.md' "
+        f"onclick=\"event.preventDefault();view('audit.md','Audit report')\">report</a> · "
+        f"<a href='/file/{case_id}/ledger.jsonl' "
+        f"onclick=\"event.preventDefault();view('ledger.jsonl','Check ledger: every claim, "
+        f"its check, the mutation test, and the evidence')\">check ledger</a> · "
+        f"<a href='/file/{case_id}/verdicts.json' "
+        f"onclick=\"event.preventDefault();view('verdicts.json','Raw verdicts')\">raw verdicts</a>"
+        f"</p></div>"
         f"<p><a href='/'>Audit another dataset</a></p>")
-    return HTMLResponse(_page(body))
+    return HTMLResponse(_page(body, VIEWER.replace("__CASE__", case_id)))
 
 
 async def serve_file(request: Request) -> PlainTextResponse:
