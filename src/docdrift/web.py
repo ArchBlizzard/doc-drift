@@ -104,6 +104,10 @@ tbody tr:hover{background:color-mix(in srgb, var(--accent) 5%, transparent)}
 .chip.holds{background:var(--ok);color:var(--ok-ink)}
 .chip.unverifiable{background:var(--gray);color:var(--gray-ink)}
 .chip.op{background:transparent;border:1.5px dashed currentColor;opacity:.75}
+.callout{background:var(--bad);color:var(--bad-ink);border-radius:12px;
+  padding:.7rem 1rem;margin:.6rem 0;font-weight:600}
+.miss{display:inline-block;margin-top:.3rem;padding:.1rem .5rem;border-radius:980px;
+  background:var(--bad);color:var(--bad-ink);font-size:.72rem;font-weight:700}
 .stats{display:flex;gap:.6rem;flex-wrap:wrap;margin:.4rem 0 1rem}
 .stat{background:var(--bg);border-radius:12px;padding:.6rem 1rem;text-align:center}
 .stat b{display:block;font-size:1.3rem}
@@ -793,6 +797,20 @@ async def result_page(request: Request) -> HTMLResponse:
             f"the full file.</p>"
             f"<details><summary>See the exact prompt it was given</summary>"
             f"<pre>{prompt}</pre></details></div></div>")
+        proved = [i for i, c in enumerate(out.claims) if c.verdict.value == "violated"]
+        ai_caught = sum(1 for i in proved
+                        if matched.get(i) is not None
+                        and matched[i].verdict.value == "violated")
+        ai_said_holds = sum(1 for i in proved
+                            if matched.get(i) is not None
+                            and matched[i].verdict.value == "holds")
+        scoreboard = ""
+        if proved:
+            scoreboard = (
+                f"<div class='callout'>DocDrift proved {len(proved)} violation(s) on the "
+                f"full file. The direct ask caught {ai_caught} of {len(proved)}"
+                + (f" and called {ai_said_holds} of them holds." if ai_said_holds
+                   else ".") + "</div>")
         rows = []
         for i, c in _by_importance(out.claims):
             b = matched.get(i)
@@ -803,6 +821,8 @@ async def result_page(request: Request) -> HTMLResponse:
                                opinion=True)
                 if b.computed:
                     b_cell += f"<br><span class='muted'>{b.computed}</span>"
+                if c.verdict.value == "violated" and b.verdict.value != "violated":
+                    b_cell += "<br><span class='miss'>missed this violation</span>"
             rows.append(
                 f"<tr><td>{c.quoted_span}</td>"
                 f"<td>{_chip(c.verdict.value, c.reason.value if c.reason else None)}"
@@ -817,7 +837,7 @@ async def result_page(request: Request) -> HTMLResponse:
             extra = (f"<p class='muted'>The direct ask also gave opinions on "
                      f"{len(leftovers)} other passage(s):</p><ul class='muted'>{items}</ul>")
         table_card = (
-            f"<div class='card scroll'><h2>Claim by claim</h2>"
+            f"<div class='card scroll'><h2>Claim by claim</h2>{scoreboard}"
             f"<table><thead><tr><th>Claim from the card</th>"
             f"<th>With DocDrift<br><span class='dim'>checked on the full file</span></th>"
             f"<th>Just asking the AI<br><span class='dim'>opinions, no checks run</span></th>"

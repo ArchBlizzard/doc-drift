@@ -143,6 +143,9 @@ def test_compare_mode_side_by_side(client, tmp_path, monkeypatch):
     assert "did not mention this claim" in result.text or "unverifiable" in result.text
     assert "gave opinions on" in result.text
     assert "chip op" in result.text  # the AI column is visually an opinion, not a verdict
+    # the honest scoreboard: head to head on proved violations
+    assert "caught 0 of 1" in result.text
+    assert "missed this violation" in result.text
 
 
 def test_access_code_gate(client, monkeypatch):
