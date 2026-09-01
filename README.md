@@ -2,7 +2,6 @@
 
 **A dataset-audit agent that verifies every claim in a data card against the actual data — by writing, mutation-testing, and executing its own checks.**
 
-Built solo for the micro1 Agentic Workflows Hackathon (Aug 2026). Repo layout, specs, and the full task-by-task build history live in [`specs/001-docdrift/`](specs/001-docdrift/) and the commit log (one commit per task).
 
 ---
 
